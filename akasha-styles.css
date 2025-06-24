@@ -1,0 +1,40 @@
+/* Make author and date smaller */
+.author, .date {
+  font-size: 0.8em;
+  color: #666;
+}
+
+/* Change TOC link color */
+#TOC a {
+  color: #0f7662;
+}
+#TOC a:hover {
+  color: #18bc9c;
+}
+
+
+h4.subtitle {
+  margin-top: 0;
+  margin-bottom: 0.2em;
+}
+
+.author, .date {
+  margin-top: 0;
+}
+
+/* Fix emphasis visibility in Flatly */
+em {
+  font-style: italic;
+  color: #1a1a1a; /* or any darker color */
+}
+
+strong {
+  font-weight: bold;
+  color: #000; /* make bold stand out */
+}
+
+em strong, strong em {
+  font-style: italic;
+  font-weight: bold;
+  color: #000;
+}
