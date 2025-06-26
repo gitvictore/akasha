@@ -591,7 +591,8 @@ ggplot(freq, aes(x = PastAyahuasca, y = n)) +
 ```
 
 #### Chart 2: Why are People Taking Ayahuasca?
-
+Across all levels of prior ayahuasca experience, **spiritual growth** nearly always emerged as the most common intention, particularly among those with extensive experience ("6–10 times" and "10+ times"), where it made up the clear majority (56% and 70%, respectively). **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants.
+Interestingly, **mental health** intentions peaked in the "2–5 times" group, overtaking spiritual growth as an intention in that group. This may suggest a transitional phase where participants engage with ayahuasca as a psychologically therapeutic tool before moving toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
 ```{r ayahuasca-by-intention, echo=FALSE, fig.align='left'}
 
 # Prepare counts + proportions
@@ -947,7 +948,10 @@ kable(
   )
 ```
 
-
+```{r beep, message=FALSE, warning=FALSE, include=FALSE}
+library(beepr)
+beep()
+```
 
 <!--
 ## Sandbox
