@@ -302,17 +302,17 @@ alldata <- base_clean %>%
 
 # Methods
 
-This pilot study administered **three (3) questionnaires (*Baseline*, *Post-Retreat*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
+This pilot study administered **three (3) questionnaires (*Baseline*, *Follow-up*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
 
 Participants completed the *Baseline* questionnaire electronically via Qualtrics at the start of the retreat, **prior to the first ceremony.** Informed consent was obtained through an affirmative response to the consent item included at the beginning of the first questionnaire. Due to its small scale and programmatic nature, the study did not undergo formal IRB review.
 
-The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were available in both **English and Portuguese**.
+The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were offered in both **English and Portuguese**.
 
-Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* questionnaires. Measures of **nature and social connectedness** appeared in all three questionnaires: *Baseline*, *Post-Retreat*, and *One-Month*.
+Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* questionnaires. Measures of **nature and social connectedness** appeared in all three questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
 
 All items used 5-point Likert scales (e.g., from "Strongly disagree" to "Strongly agree" or "Not at all important" to "Extremely important"). Within each section, items were presented in randomized order. Upon completing the *Baseline* questionnaire, participants were assigned an anonymous Participant ID for longitudinal tracking.
 
-Immediately after the retreat, participants received the *Post-Retreat* questionnaire, which captured immediate effects and reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**—including the presence of shamans, music, group rituals, and physical setting—on a 5-point scale. Open-ended prompts invited them to share **notable moments** and the **primary emotion** they experienced post-retreat.
+Immediately after the retreat, participants received the *Follow-up* questionnaire, which captured immediate effects and reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**—including the presence of shamans, music, group rituals, and physical setting—on a 5-point scale. Open-ended prompts invited them to share **notable moments** and the **primary emotion** they experienced post-retreat.
 
 Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier questionnaires to allow for longtitudinal comparisons.
 
@@ -323,7 +323,9 @@ We gratefully acknowledge the generous support and collaboration of the **Guardi
 ## Participant Overview
 
 ### Table 1: Baseline Participant Characteristics by Retreat
-**Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire. **Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2% held a bachelor’s degree, 25.4% a master’s, 19.0% vocational training, 15.9% upper secondary, 7.9% doctoral, and 1.6% primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2%)**, United Kingdom (19.0%), and United States (17.5%), and **the largest group resided in Brazil (33.3%)** with substantial representation in the UK (25.4%) and United States (17.5%).
+**Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire.
+
+**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2% held a bachelor’s degree, 25.4% a master’s, 19.0% vocational training, 15.9% upper secondary, 7.9% doctoral, and 1.6% primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2%)**, United Kingdom (19.0%), and United States (17.5%), and **the largest group resided in Brazil (33.3%)** with substantial representation in the UK (25.4%) and United States (17.5%).
 
 Ceremony **intentions were led by spiritual growth** (50.8%), mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **36.5% had taken it more than ten times**, 17.5% once, 11.1% 2–5 times, 14.3% 6–10 times, and 20.6% were first-timers.
 
@@ -368,7 +370,7 @@ table1(
 
 *Displaying only participants with IDs matched to baseline*
 
-**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Tumã at 0% retention, to Ninawa at 50% retention. *Post-Retreat* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
+**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Ninawa at 50% retention to Tumã at 0% retention. *Follow-up* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
@@ -394,7 +396,7 @@ display <- table2 %>%
   filter(Retreat != "Total") %>%
   mutate(
     Baseline = as.character(N_baseline),
-    `Post-Retreat` = sprintf(
+    `Follow-up` = sprintf(
       "%d (%d%%)", N_fu,
       round(100 * N_fu / N_baseline)
     ),
@@ -403,7 +405,7 @@ display <- table2 %>%
       round(100 * N_omo / N_baseline)
     )
   ) %>%
-  select(Retreat, Baseline, `Post-Retreat`, `1-Mo`)
+  select(Retreat, Baseline, `Follow-up`, `1-Mo`)
 
 total_baseline <- sum(table2$N_baseline)
 total_fu <- sum(table2$N_fu)
@@ -415,7 +417,7 @@ display <- bind_rows(
   tibble(
     Retreat = "Total",
     Baseline = as.character(total_baseline),
-    `Post-Retreat` = sprintf(
+    `Follow-up` = sprintf(
       "%d (%d%%)",
       total_fu,
       round(100 * total_fu / total_baseline)
@@ -435,7 +437,7 @@ display %>%
   kable(
     format    = "html",
     align     = c("l", "r", "r", "r"),
-    col.names = c("Retreat", "Baseline (n, %)", "Post-Retreat (n, % retention)", "1-Mo (n, % retention)")
+    col.names = c("Retreat", "Baseline (n, %)", "Follow-up (n, % retention)", "1-Mo (n, % retention)")
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "condensed"),
@@ -734,7 +736,7 @@ Table 4 summarizes paired comparisons between *Baseline* and both subsqequent qu
 
 Statistically significant improvements (p \< .05) were found primarily in items related to **social connectedness**. Participants reported increased feelings of connection to their community and others, reduced feelings of disconnection from others, and a stronger sense of belonging. Some of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
-Notably, the **most robust effects** between *Baseline* and *One-month* were for “*I feel understood by others*” and “*I feel disconnected from others*,” both showing highly significant improvements (p \< .001). Participants also reported feeling significantly more connected to their community and to others. These improvements were already evident at Follow-up, and **strengthened** at the *One-month* assessment.
+Notably, the **most robust effects** between *Baseline* and *One-month* were for “*I feel understood by others*” and “*I feel disconnected from others*,” both showing highly significant improvements (p \< .001). Participants also reported feeling significantly more connected to their community and to others. These improvements were already evident at *Follow-up*, and **strengthened** at the *One-month* assessment.
 
 In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” which showed a slight but significant improvement, indicating that participants experienced increased attentiveness to subtle aspects of nature one month after the retreat.
 
