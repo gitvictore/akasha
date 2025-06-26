@@ -864,7 +864,7 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
   )
 ```
 
-#### Table 6: Mixed Models on Recent Wellbeing
+### Table 6: Mixed Models on Recent Wellbeing
 
 Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains from baseline to one month following the retreat. As shown in *Table 6*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (p < .001\*\*\*) and anxiety (p < .01\*\*), depression (p < .01\*\*), difficulty concentrating (p < .01\*\*), and irritability (p = .033\*). Positive shifts were also observed in life satisfaction (p = .013\*), calmness and peace (p < .01\*\*), and ease making decisions (p = .041\*), with participants also reporting **more frequent experiences of awe or transcendence** (p < .001\*\*\*).
 
