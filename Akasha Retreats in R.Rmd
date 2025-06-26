@@ -1,0 +1,1219 @@
+---
+title: "🌳 **Aldeia Akasha**</br>Ayahuasca and Nature & Social Connectedness</br><span style='font-size:0.5em;'>1H 2025 Results</span>"
+author: "Victor Eduardo and Michèle Barocchi, PhD"
+date: "Last Update: `r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  html_document: 
+    toc: true
+    css: "akasha-styles.css"
+    theme: flatly
+  md_document:
+    preserve_yaml: false
+always_allow_html: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(table1)
+library(shiny)
+library(glue)
+library(plotly)
+library(knitr)
+library(skimr)
+library(kableExtra)
+library(ggthemes)
+library(forcats)
+library(scales)
+library(tidyr)
+library(cluster)
+library(stringr)
+library(ggplot2)
+library(emmeans)
+library(lme4)
+library(purrr)
+
+# 1. Read all sheets :)
+location <- "/Users/victor/Documents/Akasha/Akasha Retreats.xlsx"
+
+basev <- readxl::read_excel(location, sheet = "baseline_v")
+fu <- readxl::read_excel(location, sheet = "fu_v")
+omo <- readxl::read_excel(location, sheet = "1mo_v")
+basetxt <- readxl::read_excel(location, sheet = "baseline")
+
+basev$Timepoint <- "Baseline"
+fu$Timepoint <- "Follow-up"
+omo$Timepoint <- "1-Month"
+```
+
+```{r filter for finished and set pid, include=FALSE}
+cols_to_drop <- c(
+  "Response Type",
+  "IP Address",
+  "Progress",
+  "Recipient Last Name",
+  "Recipient First Name",
+  "Recipient Email",
+  "External Data Reference",
+  "DistributionChannel - Distribution Channel",
+  "SC0 - Score"
+)
+
+# 1) Define a reusable cleaning function
+clean_survey <- function(df, text_col) {
+  df %>%
+    #filter(Finished != 0) %>%
+    mutate(
+      pid = if_else(
+        .data[[text_col]] != -99,
+        .data[[text_col]],
+        .data[["Participant ID"]]
+      )
+    ) %>%
+    select(
+      -all_of(text_col), # drop the free‐text override
+      -`Participant ID`, # now drop the original ID
+      -all_of(cols_to_drop) # and your other cols
+    )
+}
+
+# 2) Call it for each data frame, giving the text‐ID column name as a string
+fu_clean <- clean_survey(fu, "FU1.2_1_TEXT - What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text")
+omo_clean <- clean_survey(omo, "OMO1.2_1_TEXT - What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text")
+```
+
+```{r drop and clean, include=FALSE}
+# Define additional columns to drop from baseline_v
+# ----------------------------
+cols_to_drop <- cols_to_drop %>% c(
+  "PRE1.1 - consent",
+  "PRE1.10 - retreat - Selected Choice",
+  "PRE1.10_4_TEXT - retreat - Not displayed - Text"
+)
+
+# ----------------------------
+# 1. Clean and reshape `basetxt` so that we only carry forward
+#    the specific “_txt” or long fields we need
+# ----------------------------
+
+basetxt_for_join <- basetxt %>%
+  select(
+    `Response ID`,
+    `PRE1.2 - age`,
+    `PRE1.3 - gender - Selected Choice`,
+    `PRE1.4_1 - Text`, # country of origin
+    `PRE1.5_1 - Text`, # country of residence
+    `PRE1.6 - education`,
+    `PRE1.7 - language - Selected Choice`,
+    `PRE1.7_8_TEXT - language - Not listed - Text`,
+    `PRE1.8_1 - Text`, # religion or faith
+    `PRE3.2 - previous ayahuasca`,
+    `UserLanguage - User Language`,
+    `PRE1.10 - retreat - Selected Choice`,
+    `PRE3.3 - intention - Selected Choice`,
+    `PRE3.3_5_TEXT - intention - Not listed - Text`,
+    `PRE3.3_1_TEXT - intention - Mental health (e.g., depression, anxiety, addiction) - Text`,
+    `PRE3.3_3_TEXT - intention - Physical health (e.g., chronic pain) - Text`,
+    `PRE4.2 - connection definition`,
+    `PRE1.10 - retreat - Selected Choice`,
+    `LocationLatitude - Location Latitude`,
+    `LocationLongitude - Location Longitude`
+  )
+
+# ----------------------------
+# 2. Build `base_clean` in one pipeline
+# ----------------------------
+base_clean <- basev %>%
+  # 2a. Keep only those who finished
+  filter(Finished != 0) %>%
+  # 2b. Rename Participant ID → pid
+  rename(pid = `Participant ID`) %>%
+  # 2c. Left-join the small `basetxt_for_join` by “Response ID”
+  left_join(
+    basetxt_for_join,
+    by     = "Response ID",
+    suffix = c("", "_txt")
+  ) %>%
+  # 2d. Drop the columns in cols_to_drop for base_v
+  select(-all_of(cols_to_drop)) %>%
+  # 2e. Rename vars
+  rename(
+    LAT = `LocationLatitude - Location Latitude`,
+    LON = `LocationLongitude - Location Longitude`,
+    Age = `PRE1.2 - age_txt`,
+    Gender = `PRE1.3 - gender - Selected Choice_txt`,
+    CountryOrigin = `PRE1.4_1 - Text_txt`,
+    CountryResidence = `PRE1.5_1 - Text_txt`,
+    HighestEducation = `PRE1.6 - education_txt`,
+    Religion = `PRE1.8_1 - Text_txt`,
+    PastAyahuasca = `PRE3.2 - previous ayahuasca_txt`,
+    baseline_DefnofConnection = `PRE4.2 - connection definition_txt`,
+    BrowserLanguage = `UserLanguage - User Language_txt`,
+    Retreat = `PRE1.10 - retreat - Selected Choice_txt`
+  ) %>%
+  # 2f. Coalesce demographic and baseline fields:
+  mutate(
+    # PrimaryLanguage: if “Not listed,” use the accompanying text; otherwise, keep the choice
+    PrimaryLanguage = case_when(
+      as.character(`PRE1.7 - language - Selected Choice`) == "Not listed" &
+        !is.na(`PRE1.7_8_TEXT - language - Not listed - Text`)
+      ~ as.character(`PRE1.7_8_TEXT - language - Not listed - Text`),
+      TRUE ~ as.character(`PRE1.7 - language - Selected Choice`)
+    ),
+
+    # Intention: if “Not listed,” wrap the text field in “Other (...)”
+    Intention = case_when(
+      as.character(`PRE3.3 - intention - Selected Choice`) == "Not listed" &
+        !is.na(`PRE3.3_5_TEXT - intention - Not listed - Text`)
+      ~ paste0(
+          "Other (",
+          as.character(`PRE3.3_5_TEXT - intention - Not listed - Text`),
+          ")"
+        ),
+      TRUE ~ as.character(`PRE3.3 - intention - Selected Choice`)
+    ),
+
+    # Standardize Country of Origin
+    CountryOrigin = case_when(
+      CountryOrigin %in% c("Brasil", "Brazil") ~ "Brazil",
+      CountryOrigin %in% c("United States", "United States of America", "USA") ~ "United States",
+      CountryOrigin %in% c("Britain", "England") ~ "United Kingdom",
+      CountryOrigin == "México" ~ "Mexico",
+      CountryOrigin == "France and Lebanon" ~ "France",
+      TRUE ~ CountryOrigin
+    ),
+
+    # Standardize Country of Residence
+    CountryResidence = case_when(
+      CountryResidence %in% c("Brasil", "Brazil") ~ "Brazil",
+      CountryResidence %in% c("United States", "United States of America", "USA") ~ "United States",
+      CountryResidence %in% c("Britain", "England", "Wales", "UK/India") ~ "United Kingdom",
+      TRUE ~ CountryResidence
+    )
+  ) %>%
+  # 2h. Drop all of the original long‐named baseline columns we’ve now renamed
+  select(
+    -`PRE1.7 - language - Selected Choice`,
+    -`PRE1.7_8_TEXT - language - Not listed - Text`,
+    -`PRE3.3 - intention - Selected Choice`,
+    -`PRE3.3_5_TEXT - intention - Not listed - Text`,
+    -`Finished`,
+    -`LocationLatitude - Location Latitude_txt`,
+    -`LocationLongitude - Location Longitude_txt`,
+    -`PRE1.2 - age`,
+    -`PRE1.3 - gender - Selected Choice`,
+    -`PRE1.4_1 - Text`,
+    -`PRE1.5_1 - Text`,
+    -`PRE1.6 - education`,
+    -`PRE1.8_1 - Text`,
+    -`PRE3.2 - previous ayahuasca`,
+    -`PRE4.2 - connection definition`,
+    -`UserLanguage - User Language`
+  )
+
+base_clean <- base_clean %>%
+  select(
+    Timepoint,
+    Age,
+    Gender,
+    Intention,
+    CountryOrigin,
+    CountryResidence,
+    HighestEducation,
+    PrimaryLanguage,
+    Religion,
+    PastAyahuasca,
+    BrowserLanguage,
+    Retreat,
+    baseline_DefnofConnection,
+    LAT,
+    LON,
+    everything()
+  )
+
+base_clean <- base_clean %>%
+  mutate(
+    Retreat = factor(
+      Retreat,
+      levels = c("Ninawa", "COLIBRI", "Tumã", "Nixiwaka")
+    ),
+    Gender = factor(Gender),
+    HighestEducation = factor(
+      HighestEducation,
+      levels = c(
+        "Primary (Elementary)",
+        "Upper Secondary (High)",
+        "Vocational",
+        "Bachelor's",
+        "Master's",
+        "Doctoral"
+      )
+    ),
+    CountryOrigin = fct_infreq(CountryOrigin),
+    CountryResidence = fct_infreq(CountryResidence),
+    Intention = factor(
+      Intention,
+      levels = c(1, 2, 3, 4, 5, 6, 8),
+      labels = c(
+        "Mental health",
+        "Spiritual growth",
+        "Physical health",
+        "Curiosity",
+        "Other",
+        "Career",
+        "I don't know"
+      )
+    ),
+    Intention = fct_infreq(Intention),
+    Intention = fct_drop(Intention),
+    PastAyahuasca = factor(
+      PastAyahuasca,
+      levels = c(
+        "Never",
+        "One time",
+        "2–5 times",
+        "6–10 times",
+        "More than 10 times"
+      )
+    )
+    # Age remains numeric in base_clean
+  )
+
+# 8. FULL JOIN the merged base_merged with fu_clean and omo_clean by pid
+alldata <- base_clean %>%
+  full_join(fu_clean, by = "pid", suffix = c("", ".fu")) %>%
+  full_join(omo_clean, by = "pid", suffix = c("", ".omo"))
+```
+
+## Methods
+
+This pilot study involved administering **three questionnaires (*Baseline*, *Post-Retreat*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** conducted at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** from **January to April 2025**. Each retreat consisted of **three (3) separate ayahuasca ceremonies** over the course of one week.
+
+Participants were invited to complete the *Baseline* questionnaire electronically (via Qualtrics) at the start of the retreat, **prior to the first ceremony**. Participants provided informed consent by affirmatively responding to the survey consent item at the start of the first questionnaire. This small pilot study did not undergo formal IRB review due to its limited scope and programmatic nature.
+
+The ***Baseline*** **questionnaire** asked participants about **demographics** (age, gender, highest education level, country of origin and residence, primary language spoken, religious affiliation, and prior experience with spiritual or healing practices), **previous ayahuasca experience**, and participants' **main intention** for participating in the ceremony. Due to the **internationally diverse audience**, the "highest education level" question specifically included **examples from various educational systems** (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and the survey was offered in **English and Portuguese**.
+
+Participants completed a section covering **recent** **wellbeing over the prior two weeks** (calmness, irritability, anxiety, depressive symptoms, overall life satisfaction) in the *Baseline* and *One-Month* questionnaires. A separate section covering nature and social connectedness was offered in the *Baseline*, *Post-Retreat*, and *One-Month* questionnaires.
+
+All three of these sections employed a 5-point Likert scale (ranging from "Strongly disagree" to "Strongly agree", or "Not at all important" to "Extremely important"). The ordering of questions within these latter sections was randomized. Upon completion of the *Baseline* questionnaire, each participant was assigned an anonymous Participant ID to facilitate longitudinal data tracking across questionnaires.
+
+Immediately following the retreat, participants received a post-retreat survey, which captured their immediate experiences and perceived effects after the ceremonies. This survey repeated the nature and social connectedness measures from the baseline, allowing comparison of pre- and post-retreat responses. Additional questions were asked about specific post-ceremonial effects (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the importance of specific aspects of the ceremonial setting, including presence of shamanic figures, music, group rituals, and the physical environment, on a similar 5-point Likert scale. Open-ended items solicited participants to share impactful moments and the primary emotion they experienced post-retreat.
+
+The final *One-Month* questionnaire, conducted one month after the retreat, reassessed participants' recent well-being, nature and social connectedness, and mental health status, using identical questions from the previous questionnaires. This allowed for longitudinal comparisons at baseline, immediately post-retreat, and one month later.
+
+Data from all three questionnaires were linked anonymously using the Participant ID, ensuring confidentiality and enabling consistent longitudinal tracking of participants' experiences and outcomes.
+
+## Results
+
+**Table 1** (below) reports characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire. **Most participants were women (58.7 %)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2 % held a bachelor’s degree, 25.4 % a master’s, 19.0 % vocational training, 15.9 % upper secondary, 7.9 % doctoral, and 1.6 % primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2 %)**, United Kingdom (19.0 %), and United States (17.5 %), and **the largest group resided in Brazil (33.3 %)** with substantial representation in the UK (25.4 %) and United States (17.5 %).
+
+Ceremony **intentions were led by spiritual growth** (50.8 %), mental health (19.0 %), and career (14.3 %), with smaller proportions citing physical health (4.8 %), curiosity (4.8 %), or other purposes (6.3 %). Prior ayahuasca experience varied widely: **36.5 % had taken it more than ten times**, 17.5 % once, 11.1 % two–five times, 14.3 % six–ten times, and 20.6 % were first-timers.
+
+### Table 1: Baseline Participant Characteristics by Retreat
+
+```{r table1, echo=FALSE}
+### Table1 only from baseline retreat with matched participants
+
+table1_selection <- base_clean %>%
+  select(
+    Retreat,
+    Gender,
+    Age,
+    PastAyahuasca,
+    Intention,
+    HighestEducation,
+    CountryOrigin,
+    CountryResidence
+  )
+
+# Attach “label” attributes:
+label(base_clean$Gender) <- "Gender"
+label(base_clean$HighestEducation) <- "Highest education level"
+label(base_clean$CountryOrigin) <- "Country of origin"
+label(base_clean$CountryResidence) <- "Country of residence"
+label(base_clean$Intention) <- "Ceremony intention"
+label(base_clean$PastAyahuasca) <- "Times taken ayahuasca"
+label(base_clean$Age) <- "Age (years)"
+
+table1(
+  ~ Gender
+  + Age
+    + HighestEducation
+    + PastAyahuasca
+    + Intention
+    + CountryOrigin
+    + CountryResidence | Retreat,
+  data = base_clean,
+  overall = "Total"
+)
+```
+
+### Table 2: Questionnaire Completion by Retreat
+
+*Displaying only participants with IDs matched to baseline*
+
+**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38 %,** with retention varying by retreat from Tumã at 0 % retention, to Ninawa at 50 % retention. *Post-Retreat* questionnaire retention averaged 68 % overall, ranging from 36 % for COLIBRI to 84 % for Nixiwaka.
+
+```{r table2 survey completion, echo=FALSE}
+# 1) Define the desired order
+ordered_levels <- c("Ninawa", "COLIBRI", "Tumã", "Nixiwaka", "Total")
+
+# 2) Compute raw counts
+table2 <- base_clean %>%
+  group_by(Retreat) %>%
+  summarize(
+    N_baseline = n_distinct(pid),
+    N_fu = sum(pid %in% fu_clean$pid),
+    N_omo = sum(pid %in% omo_clean$pid),
+    .groups = "drop"
+  )
+
+# 3) Totals
+total_baseline <- sum(table2$N_baseline)
+total_fu <- sum(table2$N_fu)
+total_omo <- sum(table2$N_omo)
+
+# 4) Build display rows for non-Total
+display <- table2 %>%
+  filter(Retreat != "Total") %>%
+  mutate(
+    Baseline = as.character(N_baseline),
+    `Post-Retreat` = sprintf(
+      "%d (%d%%)", N_fu,
+      round(100 * N_fu / N_baseline)
+    ),
+    `1-Mo` = sprintf(
+      "%d (%d%%)", N_omo,
+      round(100 * N_omo / N_baseline)
+    )
+  ) %>%
+  select(Retreat, Baseline, `Post-Retreat`, `1-Mo`)
+
+total_baseline <- sum(table2$N_baseline)
+total_fu <- sum(table2$N_fu)
+total_omo <- sum(table2$N_omo)
+
+# 5) Append Total row with counts only
+display <- bind_rows(
+  display,
+  tibble(
+    Retreat = "Total",
+    Baseline = as.character(total_baseline),
+    `Post-Retreat` = sprintf(
+      "%d (%d%%)",
+      total_fu,
+      round(100 * total_fu / total_baseline)
+    ),
+    `1-Mo` = sprintf(
+      "%d (%d%%)",
+      total_omo,
+      round(100 * total_omo / total_baseline)
+    )
+  )
+)
+
+# 6) Order and render
+display %>%
+  mutate(Retreat = factor(Retreat, levels = ordered_levels)) %>%
+  arrange(Retreat) %>%
+  kable(
+    format    = "html",
+    align     = c("l", "r", "r", "r"),
+    col.names = c("Retreat", "Baseline (n, %)", "Post-Retreat (n, % retention)", "1-Mo (n, % retention)")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "condensed"),
+    full_width        = TRUE,
+    position          = "left"
+  ) %>%
+  row_spec(nrow(display), bold = TRUE)
+```
+
+```{r prep timepoint comparison, echo=FALSE}
+# 1) bind all three, but keep the raw question name
+all_raw <- bind_rows(
+  base_clean %>% mutate(Timepoint = "Baseline") %>%
+    select(
+      pid,
+      Retreat,
+      Timepoint,
+      PastAyahuasca,
+      Intention,
+      starts_with("PRE_")
+    ),
+  fu_clean %>% mutate(Timepoint = "Follow-up") %>% select(
+    pid,
+    Retreat,
+    Timepoint,
+    starts_with("FU_")
+  ),
+  omo_clean %>% mutate(Timepoint = "One-month") %>% select(
+    pid,
+    Retreat,
+    Timepoint,
+    starts_with("OMO_")
+  )
+)
+
+# 2) pivot long
+all_long <- all_raw %>%
+  pivot_longer(
+    cols      = -c(pid, Timepoint, Retreat, PastAyahuasca, Intention),
+    names_to  = "Question_raw",
+    values_to = "Response"
+  )
+
+# 3) split into NATSC vs wellbeing
+all_nat <- all_long %>% filter(str_detect(Question_raw, "_NATSC_"))
+all_wellbeing <- all_long %>% filter(str_detect(Question_raw, "_BASELINE_"))
+
+
+# define which questions to invert
+inv_nat <- c(
+  "I view humans as separate from nature.",
+  "I feel disconnected from others."
+)
+inv_wb <- c(
+  "I have experienced feelings of loneliness.",
+  "I have felt anxious or \"on edge\".",
+  "I have had difficulty concentrating or focusing.",
+  "I have experienced conflict or tension in my relationships.",
+  "I have felt irritable or easily frustrated.",
+  "I have felt down, depressed, or hopeless.",
+  "I have experienced physical pain or discomfort.",
+  "I have had difficulty sleeping."
+)
+
+# 4) clean the label (drops both prefix & domain, leaves only the text)
+cleaned_nat <- all_nat %>%
+  mutate(
+    Question = str_remove(Question_raw, "^.* - "),
+    Question = recode(
+      Question,
+      "I notice and appreciate the small details of nature (e.g., plants, animals, weather)." =
+        "I notice and appreciate the small details of nature."
+    ),
+    # now invert
+    Response = if_else(Question %in% inv_nat, 6L - Response, Response),
+    Question = if_else(Question %in% inv_nat,
+      str_c(Question, " (inv.)"),
+      Question
+    )
+  )
+
+cleaned_nat_complete <- cleaned_nat %>%
+  filter(!is.na(Response)) %>%
+  group_by(pid) %>%
+  filter(n_distinct(Timepoint) == 3) %>%
+  ungroup()
+
+cleaned_wb <- all_wellbeing %>%
+  mutate(
+    Question = str_remove(Question_raw, "^.* - "),
+    Response = if_else(Question %in% inv_wb, 6L - Response, Response),
+    Question = if_else(Question %in% inv_wb,
+      str_c(Question, " (inv.)"),
+      Question
+    )
+  )
+
+cleaned_wb_complete <- cleaned_wb %>%
+  filter(!is.na(Response)) %>%
+  group_by(pid) %>%
+  filter(n_distinct(Timepoint) == 2) %>%
+  ungroup()
+
+cleaned_all <- all_long %>%
+  mutate(
+    Question = str_remove(Question_raw, "^.* - "),
+    needs_inv = Question %in% c(inv_nat, inv_wb),
+    Response = if_else(needs_inv, 6L - Response, Response),
+    Question = if_else(needs_inv,
+      str_c(Question, " (inv.)"),
+      Question
+    )
+  ) %>%
+  select(-needs_inv)
+
+# 2) Summarize means by Question × Timepoint
+summary_nat <- cleaned_nat %>%
+  group_by(Question, Timepoint) %>%
+  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
+
+
+
+summary_wb <- cleaned_wb %>%
+  group_by(Question, Timepoint) %>%
+  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
+```
+
+### Past Ayahuasca Exploration
+
+```{r ayahuasca frequency, echo=FALSE, fig.width=10, fig.height=10, fig.align='center'}
+# 1. Tabulate counts per PastAyahuasca level
+freq <- base_clean %>%
+  count(PastAyahuasca) %>%
+  arrange(match(PastAyahuasca,
+    c("Never","One time","2–5 times","6–10 times","More than 10 times")
+  )) %>%
+  mutate(
+    pct = n / sum(n),
+    label = paste0(n, " (", scales::percent(pct, 1), ")"),
+    PastAyahuasca = factor(
+      PastAyahuasca,
+      levels = rev(
+        c("Never","One time","2–5 times","6–10 times","More than 10 times")
+      )
+    )
+  )
+
+# 2. Horizontal bar chart
+ggplot(freq, aes(x = PastAyahuasca, y = n)) +
+  geom_col(fill = "#A8D5BA") +
+  geom_text(aes(label = label), hjust = -0.1) +
+  scale_y_continuous(expand = expansion(c(0, .1))) +
+  coord_flip() +
+  labs(
+    x     = "# Participants",
+    y     = "Times Taken Ayahuasca",
+    title = "Frequency of Prior Ayahuasca Experience (Baseline)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r ayahuasca-by-intention-plotly, echo=FALSE, fig.align='center', fig.width=10, fig.height=6}
+
+# Prepare counts + proportions
+intention_freq <- base_clean %>%
+  count(PastAyahuasca, Intention) %>%
+  group_by(PastAyahuasca) %>%
+  mutate(
+    prop = n / sum(n),
+    text = paste0(
+      "Experience: ", PastAyahuasca, "<br>",
+      "Intention:  ", Intention, "<br>",
+      "Count:      ", n, "<br>",
+      "Percent:    ", scales::percent(prop, 1)
+    )
+  ) %>%
+  ungroup() %>%
+  mutate(
+    PastAyahuasca = factor(
+      PastAyahuasca,
+      levels = c("Never","One time","2–5 times","6–10 times","More than 10 times")
+    )
+  )
+
+p <- ggplot(intention_freq, aes(
+  x    = PastAyahuasca,
+  y    = prop,
+  fill = Intention,
+  text = text
+)) +
+  geom_col(color = "white", position = "fill", width = 0.7) +
+  scale_y_continuous(labels = scales::percent_format(), expand = expansion(0)) +
+  scale_fill_brewer(palette = "Set2") +
+  coord_flip() +
+  labs(
+    x     = "Times Taken Ayahuasca",
+    y     = "Proportion of Intentions",
+    fill  = "Ceremony Intention",
+    title = "Intentions by Prior Ayahuasca Experience"
+  ) +
+  theme_light(base_size = 13) +
+  theme(
+    axis.title.y    = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
+  )
+
+# Convert to interactive
+ggplotly(p, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    font = list(family = "sans-serif")
+    )
+```
+
+```{r past experiences, eval=FALSE, include=FALSE}
+# 1) Build a data.frame of differences
+diffs <- cleaned_nat_complete %>%
+  filter(Question == "I feel disconnected from others. (inv.)") %>%
+  select(pid, Timepoint, Response) %>%
+  pivot_wider(names_from = Timepoint, values_from = Response) %>%
+  mutate(diff = Baseline - `One-month`) %>%
+  drop_na(diff) %>%
+  # now left-join PastAyahuasca from base_clean
+  left_join(
+    base_clean %>% select(pid, PastAyahuasca) %>% distinct(),
+    by = "pid"
+  )
+
+skim(diffs)
+
+# 2a) Histogram + density
+ggplot(diffs, aes(x = diff)) +
+  geom_histogram(aes(y = ..density..), bins = 8, color = "black", fill = "gray90") +
+  geom_density(color = "blue", size = 1) +
+  labs(
+    x = "Baseline – One-month", y = "Density",
+    title = "Distribution of Difference Scores"
+  ) +
+  theme_minimal()
+```
+
+### Table 3: How Participants' **Nature and Social Connectedness** Evolved After Retreat
+
+Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
+
+```{r chart: connectedness across timepoints, echo=FALSE, fig.width=16, fig.height=8}
+### nat
+ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
+  geom_line(color = "gray40") +
+  geom_point(aes(color = Timepoint), size = 3) +
+  geom_text(
+    aes(label = sprintf("%.2f", mean_response)),
+    color = "black",
+    vjust = 2.0,
+    size = 5
+  ) +
+  facet_wrap(~Question,
+    nrow = 2, scales = "fixed",
+    labeller = label_wrap_gen(width = 20)
+  ) +
+  scale_y_continuous(limits = c(1, 5), breaks = 1:5) +
+  scale_color_manual(
+    values = c(
+      "Baseline"   = "#ace3a6",
+      "Follow-up"  = "#2eb51f",
+      "One-month"  = "#116b07"
+    )
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.spacing    = unit(0.5, "lines"),
+    panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
+    strip.text       = element_text(size = 13, face = "bold"),
+    axis.text.x      = element_text(angle = 45, hjust = 1),
+    panel.grid.major = element_line(color = "gray90"),
+    legend.position  = "none"
+  ) +
+  labs(
+    x = NULL,
+    y = "Mean response (1–5)"
+  )
+```
+
+### Table 4: Mixed Models on Nature and Social Connectedness
+
+This table summarizes paired comparisons between *Baseline* and both subsqequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
+
+Statistically significant improvements (p \< .05) were found primarily in items related to **social connectedness**. Participants reported increased feelings of connection to their community and others, reduced feelings of disconnection from others, and a stronger sense of belonging. Some of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
+
+Notably, the **most robust effects** were for “*I feel like I belong*” and “*I feel understood by others*,” both showing highly significant improvements (p \< .001). In contrast, items related to **nature connection** (e.g., awe in nature, spiritual bond with Earth, emotional connection to the natural world) and environmental motivation **showed** **no significant changes**. This pattern suggests the retreat had a **stronger and more immediate impact on social rather than nature-based aspects of connectedness**.
+
+```{r table: linear mixed model all_na, echo=FALSE}
+results_nat_complete <- cleaned_nat %>%
+  # only keep pid/timepoint/question/response
+  select(pid, Timepoint, Question, Response) %>%
+  # for reproducibility, ensure Timepoint is a factor in the right order
+  mutate(Timepoint = factor(Timepoint, levels = c("Baseline", "Follow-up", "One-month"))) %>%
+  # nest by Question
+  nest_by(Question) %>%
+  mutate(
+    # fit LMM
+    model = list(lmer(Response ~ Timepoint + (1 | pid), data = data, REML = FALSE)),
+    # emmeans + pairwise contrasts
+    em = list(emmeans(model, ~Timepoint)),
+    contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
+  ) %>%
+  # unnest the contrasts
+  select(Question, contrasts) %>%
+  ungroup() %>%
+  unnest(contrasts)
+
+slim_results_nat <- results_nat_complete %>%
+  mutate(
+    contrast = str_replace(contrast, " - ", " to "),
+    contrast = str_remove_all(contrast, "\\(|\\)")) %>%
+    filter(contrast != "Follow-up to One-month") %>%
+    mutate(,
+    Estimate = round(estimate, 2),
+    SE = round(SE, 2),
+    DF = round(df, 1),
+    t_value = round(t.ratio, 2),
+    # formatted p-value
+    p_fmt = case_when(
+      p.value < 0.001 ~ "<.001",
+      p.value < 0.01 ~ "<.01",
+      TRUE ~ sprintf("%.3f", p.value)
+    ),
+    # stars
+    stars = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01 ~ "**",
+      p.value < 0.05 ~ "*",
+      TRUE ~ ""
+    ),
+    # combine them
+    `p value` = paste0(p_fmt, stars)
+  ) %>%
+  select(
+    Question,
+    Contrast = contrast,
+    Estimate,
+    SE,
+    DF,
+    `t value` = t_value,
+    `p value`
+  )
+
+kable(
+  slim_results_nat,
+  format    = "html",
+  align     = c("l", "l", "r", "r", "r", "r", "r"),
+  col.names = c("Question", "Timeline Pair", "Estimate", "SE", "DF", "t-value", "p-value")
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "condensed"),
+    position          = "left"
+  ) %>%
+  footnote(
+    general = "Significance codes: * p < .05; ** p < .01; *** p < .001",
+  )
+```
+
+```{r violintest, eval=FALSE, include=FALSE}
+ggplot(alldata, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
+        geom_violin() +
+        labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
+```
+
+### Table 5: How Participants' **Recent Wellbeing** Evolved After Retreat
+
+Mean response on each **Recent Wellbeing** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
+
+```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=14}
+## wellbeing
+
+summary_wb <- summary_wb %>%
+  filter(Timepoint != "Follow-up")
+
+ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
+  geom_line(color = "gray40") +
+  geom_point(aes(color = Timepoint), size = 5) +
+  geom_text(
+    aes(label = sprintf("%.2f", mean_response)),
+    color = "black",
+    vjust = -1.0,
+    size = 5
+  ) +
+  facet_wrap(~Question,
+    nrow = 3, scales = "fixed",
+    labeller = label_wrap_gen(width = 20)
+  ) +
+  scale_y_continuous(limits = c(1, 5), breaks = 1:5) +
+  scale_color_manual(
+    values = c(
+      "Baseline"   = "#A6CEE3",
+      "Follow-up"  = "#1F78B4",
+      "One-month"  = "#08306B"
+    )
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.spacing    = unit(0.5, "lines"),
+    panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
+    strip.text       = element_text(size = 13, face = "bold"),
+    axis.text.x      = element_text(angle = 45, hjust = 1),
+    panel.grid.major = element_line(color = "gray90"),
+    legend.position  = "none"
+  ) +
+  labs(
+    x = NULL,
+    y = "Mean response (1–5)"
+  )
+```
+
+
+<!--
+## Sandbox
+```{r reverse for all 3 points, eval=FALSE, include=FALSE}
+## Graveyard
+# Reverse for All 3 Points ------------------------------------------------
+# Reverse "I feel disconnected from others"
+basev$PRE_NATSC_8_rev <- 6 - basev$`PRE_NATSC_8 - connectedness - I feel disconnected from others.`
+fu$FU_NATSC_8_rev <- 6 - fu$`FU_NATSC_8 - connectedness - I feel disconnected from others.`
+omo$OMO_NATSC_8_rev <- 6 - omo$`OMO_NATSC_8 - connectedness - I feel disconnected from others.`
+
+# Reverse "I view humans as separate from nature"
+basev$PRE_NATSC_2_rev <- 6 - basev$`PRE_NATSC_2 - connectedness - I view humans as separate from nature.`
+fu$FU_NATSC_2_rev <- 6 - fu$`FU_NATSC_2 - connectedness - I view humans as separate from nature.`
+omo$OMO_NATSC_2_rev <- 6 - omo$`OMO_NATSC_2 - connectedness - I view humans as separate from nature.`
+
+# Reverse loneliness
+basev$PRE_BASELINE_3_rev <- 6 - basev$`PRE_BASELINE_3 - baseline wellbeing - I have experienced feelings of loneliness.`
+omo$OMO_BASELINE_3_rev <- 6 - omo$`OMO_BASELINE_3 - baseline wellbeing - I have experienced feelings of loneliness.`
+
+# Reverse conflict/tension in relationships
+basev$PRE_BASELINE_15_rev <- 6 - basev$`PRE_BASELINE_15 - baseline wellbeing - I have experienced conflict or tension in my relationships.`
+omo$OMO_BASELINE_15_rev <- 6 - omo$`OMO_BASELINE_15 - baseline wellbeing - I have experienced conflict or tension in my relationships.`
+
+# Reverse physical pain or discomfort
+basev$PRE_BASELINE_6_rev <- 6 - basev$`PRE_BASELINE_6 - baseline wellbeing - I have experienced physical pain or discomfort.`
+omo$OMO_BASELINE_6_rev <- 6 - omo$`OMO_BASELINE_6 - baseline wellbeing - I have experienced physical pain or discomfort.`
+
+# Reverse difficulty sleeping
+basev$PRE_BASELINE_8_rev <- 6 - basev$`PRE_BASELINE_8 - baseline wellbeing - I have had difficulty sleeping.`
+omo$OMO_BASELINE_8_rev <- 6 - omo$`OMO_BASELINE_8 - baseline wellbeing - I have had difficulty sleeping.`
+
+# Reverse anxiety
+basev$PRE_BASELINE_5_rev <- 6 - basev$`PRE_BASELINE_5 - baseline wellbeing - I have felt anxious or "on edge".`
+omo$OMO_BASELINE_5_rev <- 6 - omo$`OMO_BASELINE_5 - baseline wellbeing - I have felt anxious or "on edge".`
+
+# Reverse depression/hopelessness
+basev$PRE_BASELINE_4_rev <- 6 - basev$`PRE_BASELINE_4 - baseline wellbeing - I have felt down, depressed, or hopeless.`
+omo$OMO_BASELINE_4_rev <- 6 - omo$`OMO_BASELINE_4 - baseline wellbeing - I have felt down, depressed, or hopeless.`
+
+# Reverse irritability/frustration
+basev$PRE_BASELINE_2_rev <- 6 - basev$`PRE_BASELINE_2 - baseline wellbeing - I have felt irritable or easily frustrated.`
+omo$OMO_BASELINE_2_rev <- 6 - omo$`OMO_BASELINE_2 - baseline wellbeing - I have felt irritable or easily frustrated.`
+
+# Reverse difficulty concentrating
+basev$PRE_BASELINE_7_rev <- 6 - basev$`PRE_BASELINE_7 - baseline wellbeing - I have had difficulty concentrating or focusing.`
+omo$OMO_BASELINE_7_rev <- 6 - omo$`OMO_BASELINE_7 - baseline wellbeing - I have had difficulty concentrating or focusing.`
+
+# Reverse "Confused and disoriented" after ceremony (FU only)
+fu$FU_AFTER_CONFUSED_rev <- 6 - fu$`FU_AFTER_CONFUSED - after ceremony feeling - Confused and disoriented`
+```
+```{r fire and ice nsc, echo=FALSE, fig.width=10, eval = FALSE, include=FALSE, fig.height=30}
+### "Fire and Ice" Gantt Chart: Nature and Social Connectedness
+
+# prepare data
+natsc_plot_data <- cleaned_nat %>%
+    filter(!is.na(Response)) %>%     # drop the NAs
+  mutate(
+    Response = factor(Response,
+      levels = 1:5,
+      labels = c(
+        "Strongly Disagree", "Disagree", "Neutral",
+        "Agree", "Strongly Agree"
+      ),
+      ordered = TRUE
+    )
+  ) %>%
+  group_by(Question, Timepoint, Response) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(Question, Timepoint) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(Timepoint = factor(Timepoint,
+    levels = c("One-month", "Follow-up", "Baseline"),
+    ordered = TRUE
+  ))
+
+# compute means for labels
+nat_mean_df <- natsc_plot_data %>%
+  group_by(Question, Timepoint) %>%
+  summarise(
+    mean_score = weighted.mean(as.integer(Response), n),
+    mean_prop  = (mean_score - 1) / 4,
+    .groups    = "drop"
+  )
+
+# Plot: now x = prop, y = Timepoint; facet by Question
+natsc_plot <- ggplot(
+  natsc_plot_data,
+  aes(
+    x    = prop,
+    y    = Timepoint,
+    fill = Response,
+    text = glue("{Response}: {percent(prop, accuracy = 0.1)}")
+  )
+) +
+  geom_vline(
+    xintercept = 0.5,
+    linetype = "dashed",
+    color = "gray50",
+    linewidth = 0.5
+  ) +
+  geom_bar(stat = "identity", position = "fill", color = NA) +
+  geom_point(
+    data = nat_mean_df,
+    aes(x = mean_prop, y = Timepoint),
+    inherit.aes = FALSE,
+    shape = 21,
+    fill = "black",
+    color = NA,
+    size = 8
+  ) +
+  geom_text(
+    data = nat_mean_df,
+    aes(x = mean_prop, y = Timepoint, label = round(mean_score, 1)),
+    inherit.aes = FALSE,
+    color = "white",
+    size = 4,
+    nudge_y = -0.04
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  scale_fill_manual(
+    values = c(
+      "darkred", # Strongly Disagree
+      "lightpink", # Disagree
+      "gray80", # Neutral
+      "skyblue", # Agree
+      "darkblue" # Strongly Agree
+    )
+  ) +
+  labs(x = "Proportion of responses", y = NULL) +
+  coord_cartesian(expand = FALSE) +
+  facet_wrap(~Question, ncol = 1, strip.position = "top") +
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.spacing = unit(2, "lines"),
+    strip.text.x = element_text(
+      face   = "bold",
+      margin = margin(b = 20)
+    ),
+    axis.text.x = element_text(
+      margin = margin(r = 20)
+    )
+  )
+
+ggplotly(natsc_plot, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    legend = list(
+      orientation = "h", # horizontal
+      x           = 0, # left-aligned
+      xanchor     = "left",
+      y           = -.025, # drop it below the plot area
+      yanchor     = "top"
+    )
+  )
+```
+
+```{r fire and ice wellbeing, echo=FALSE, eval=FALSE, include=FALSE, fig.width=10, fig.height=30}
+### "Fire and Ice" Gantt Chart: Wellbeing
+
+wb_plot_data <- cleaned_wb %>%
+  filter(!is.na(Response)) %>%
+  mutate(
+    Response = factor(Response,
+      levels = 1:5,
+      labels = c(
+        "Strongly Disagree","Disagree","Neutral",
+        "Agree","Strongly Agree"
+      ),
+      ordered = TRUE
+    )
+  ) %>%
+  group_by(Question, Timepoint, Response) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(Question, Timepoint) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(Timepoint = factor(Timepoint,
+    levels = c("Baseline","One-month"),
+    ordered = TRUE
+  ))
+
+wb_mean_df <- wb_plot_data %>%
+  group_by(Question, Timepoint) %>%
+  summarise(
+    mean_score = weighted.mean(as.integer(Response), n),
+    mean_prop  = (mean_score - 1) / 4,
+    .groups    = "drop"
+  )
+
+
+# Plot: now x = prop, y = Timepoint; facet by Question
+wb_plot <- ggplot(
+  wb_plot_data,
+  aes(
+    x    = prop,
+    y    = Timepoint,
+    fill = Response,
+    text = glue("{Response}: {percent(prop, accuracy = 0.1)}")
+  )
+) +
+  geom_vline(
+    xintercept = 0.5,
+    linetype = "dashed",
+    color = "gray50",
+    linewidth = 0.5
+  ) +
+  geom_bar(stat = "identity", position = "fill", color = NA) +
+  # geom_point(
+  #   data = wb_mean_df,
+  #   aes(x = mean_prop, y = Timepoint),
+  #   inherit.aes = FALSE,
+  #   shape = 21,
+  #   fill = "black",
+  #   color = NA,
+  #   size = 8
+  # ) +
+  # geom_text(
+  #   data = wb_mean_df,
+  #   aes(x = mean_prop, y = Timepoint, label = round(mean_score, 1)),
+  #   inherit.aes = FALSE,
+  #   color = "white",
+  #   size = 4,
+  #   nudge_y = -0.04
+  # ) +
+  scale_x_continuous(labels = scales::percent) +
+  scale_fill_manual(
+    values = c(
+      "darkred", # Strongly Disagree
+      "lightpink", # Disagree
+      "gray80", # Neutral
+      "skyblue", # Agree
+      "darkblue" # Strongly Agree
+    )
+  ) +
+  scale_y_discrete(
+    limits = c("One-month", "Baseline")
+  ) +
+  labs(x = "Proportion of responses", y = NULL) +
+  coord_cartesian(expand = FALSE) +
+  facet_wrap(~Question, ncol = 1, strip.position = "top") +
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.spacing = unit(2, "lines"),
+    strip.text.x = element_text(
+      face   = "bold",
+      margin = margin(b = 20)
+    )
+  )
+
+ggplotly(wb_plot, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    legend = list(
+      orientation = "h", # horizontal
+      x           = 0, # left-aligned
+      xanchor     = "left",
+      y           = -0.025, # drop it below the plot area
+      yanchor     = "top"
+    )
+  )
+
+```
+
+```{r fire and ice plots, eval=FALSE, include=FALSE}
+fire_ice_plot <- function(df,
+                          time_levels,
+                          show_mean = TRUE,
+                          width      = 800,
+                          height     = 2000) {
+  # 1) prepare plotting data
+  plot_data <- df %>%
+    filter(!is.na(Response)) %>%
+    mutate(
+      Response = factor(Response,
+        levels = 1:5,
+        labels = c(
+          "Strongly Disagree","Disagree","Neutral",
+          "Agree","Strongly Agree"
+        ),
+        ordered = TRUE
+      ),
+      Timepoint = factor(Timepoint,
+        levels = time_levels,
+        ordered = TRUE
+      )
+    ) %>%
+    group_by(Question, Timepoint, Response) %>%
+    summarise(n = n(), .groups="drop_last") %>%
+    mutate(prop = n / sum(n)) %>%
+    ungroup()
+  
+  # 2) compute mean scores if requested
+  mean_df <- plot_data %>%
+    group_by(Question, Timepoint) %>%
+    summarise(
+      mean_score = weighted.mean(as.integer(Response), n),
+      mean_prop  = (mean_score - 1) / 4,
+      .groups    = "drop"
+    )
+  
+  # 3) build ggplot
+  p <- ggplot(plot_data,
+    aes(
+      x    = prop,
+      y    = Timepoint,
+      fill = Response,
+      text = glue("{Response}: {percent(prop, accuracy=0.1)}")
+    )
+  ) +
+    geom_vline(xintercept=0.5,
+      linetype="dashed", color="gray50", size=0.5
+    ) +
+    geom_bar(stat="identity", position="fill", color=NA) +
+    scale_x_continuous(labels=percent) +
+    scale_fill_manual(values=c(
+      "darkred","lightpink","gray80","skyblue","darkblue"
+    )) +
+    labs(x="Proportion of responses", y=NULL) +
+    coord_cartesian(expand=FALSE) +
+    facet_wrap(~Question, ncol=1, strip.position="top") +
+    theme_minimal(base_size=16) +
+    theme(
+      panel.spacing   = unit(1.5,"lines"),
+      strip.text.x    = element_text(face="bold", margin=margin(b=20)),
+      axis.text.x     = element_text(margin=margin(t=5)),
+      legend.position = "top"
+    )
+  
+  # 4) optionally add mean‐dots + labels
+  if (show_mean) {
+    p <- p +
+      geom_point(
+        data=mean_df,
+        aes(x=mean_prop, y=Timepoint),
+        inherit.aes=FALSE,
+        shape=21, fill="black", color=NA, size=6
+      ) +
+      geom_text(
+        data=mean_df,
+        aes(x=mean_prop, y=Timepoint, label=round(mean_score,1)),
+        inherit.aes=FALSE,
+        color="white", size=4, nudge_y=-0.04
+      )
+  }
+  
+  # 5) ggplotly wrapper
+  ggplotly(p, tooltip="text", width=width, height=height) %>%
+    config(displayModeBar = FALSE) %>%
+    layout(
+      legend = list(
+        orientation="h",
+        x=0, xanchor="left",
+        y=-0.025, yanchor="top"
+      )
+    )
+}
+
+# Nature & Social Connectedness (3 timepoints)
+fire_ice_plot(
+  df          = cleaned_nat,
+  time_levels = c("One-month","Follow-up","Baseline"),
+  show_mean   = TRUE,
+  width       = 800,
+  height      = 2400
+)
+
+# Wellbeing (2 timepoints)
+fire_ice_plot(
+  df          = cleaned_wb,
+  time_levels = c("One-month","Baseline"),
+  show_mean   = FALSE,
+  width       = 800,
+  height      = 2000
+)
+```
+-->
