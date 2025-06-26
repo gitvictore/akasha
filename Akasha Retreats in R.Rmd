@@ -305,16 +305,17 @@ Immediately following the retreat, participants received a *Post-Retreat* questi
 
 The final *One-Month* questionnaire, conducted one month after the retreat, reassessed participants' recent well-being, nature and social connectedness, and mental health status, using identical questions from the previous questionnaires.
 
-## Results
+# Results
 
-**Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire. **Most participants were women (58.7 %)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2 % held a bachelor’s degree, 25.4 % a master’s, 19.0 % vocational training, 15.9 % upper secondary, 7.9 % doctoral, and 1.6 % primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2 %)**, United Kingdom (19.0 %), and United States (17.5 %), and **the largest group resided in Brazil (33.3 %)** with substantial representation in the UK (25.4 %) and United States (17.5 %).
+## Descriptive Statistics
+**Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire. **Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2% held a bachelor’s degree, 25.4% a master’s, 19.0% vocational training, 15.9% upper secondary, 7.9% doctoral, and 1.6% primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2%)**, United Kingdom (19.0%), and United States (17.5%), and **the largest group resided in Brazil (33.3%)** with substantial representation in the UK (25.4%) and United States (17.5%).
 
-Ceremony **intentions were led by spiritual growth** (50.8 %), mental health (19.0 %), and career (14.3 %), with smaller proportions citing physical health (4.8 %), curiosity (4.8 %), or other purposes (6.3 %). Prior ayahuasca experience varied widely: **36.5 % had taken it more than ten times**, 17.5 % once, 11.1 % two–five times, 14.3 % six–ten times, and 20.6 % were first-timers.
+Ceremony **intentions were led by spiritual growth** (50.8%), mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **36.5% had taken it more than ten times**, 17.5% once, 11.1% 2–5 times, 14.3% 6–10 times, and 20.6% were first-timers.
 
 ### Table 1: Baseline Participant Characteristics by Retreat
 
 ```{r table1, echo=FALSE}
-### Table1 only from baseline retreat with matched participants
+## Table1 only from baseline retreat with matched participants
 
 table1_selection <- base_clean %>%
   select(
@@ -354,7 +355,7 @@ table1(
 
 *Displaying only participants with IDs matched to baseline*
 
-**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38 %,** with retention varying by retreat from Tumã at 0 % retention, to Ninawa at 50 % retention. *Post-Retreat* questionnaire retention averaged 68 % overall, ranging from 36 % for COLIBRI to 84 % for Nixiwaka.
+**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Tumã at 0% retention, to Ninawa at 50% retention. *Post-Retreat* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
@@ -542,11 +543,13 @@ summary_wb <- cleaned_wb %>%
   filter(Timepoint != "Follow-up")
 ```
 
-### Participants' Intentions by Past Ayahuasca (Descriptive Statistics)
+### Who's Taken Ayahuasca Before, and Why
 The horizontal bar chart displays the frequency of prior ayahuasca experience among participants at *Baseline* (*n*=63). The largest group reported taking ayahuasca *more than 10 times (23 participants, 37%)*, followed by those who had never taken it (13 participants, 21%). Smaller proportions had taken it once (17%), 6–10 times (14%), or 2–5 times (11%). Overall, the sample includes both ayahuasca-naive and experienced participants, with a notable concentration at both extremes of experience.
-## Chart 1: Participants' Intentions by Prior Experience with Ayahuasca
+
+#### Chart 1: How Many Times Have Participants Taken Ayahuasca?
+
 ```{r ayahuasca frequency, echo=FALSE, fig.align='left', fig.width=10}
-# 1. Tabulate counts per PastAyahuasca level
+
 freq <- base_clean %>%
   count(PastAyahuasca) %>%
   arrange(match(PastAyahuasca,
@@ -563,7 +566,6 @@ freq <- base_clean %>%
     )
   )
 
-# 2. Horizontal bar chart
 ggplot(freq, aes(x = PastAyahuasca, y = n)) +
   geom_col(fill = "#A8D5BA", width=0.7) +
   geom_text(
@@ -586,27 +588,6 @@ ggplot(freq, aes(x = PastAyahuasca, y = n)) +
     axis.ticks.x = element_blank(),
     plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
     axis.text = element_text(size = 12))
-
-ggplot(freq, aes(x = PastAyahuasca, y = n)) +
-  geom_col(fill = "#A8D5BA", width = 0.7) +
-  geom_text(
-    aes(label = label),
-    vjust = -0.5,
-    color = "black",
-    size = 4
-  ) +
-  scale_y_continuous(expand = expansion(c(0, 0.1))) +
-  labs(
-    x = "Times Taken Ayahuasca",
-    y = "# Participants",
-    title = "Frequency of Prior Ayahuasca Experience"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(angle = 30, hjust = 1)
-  )
-
 ```
 
 
@@ -696,10 +677,10 @@ ggplot(intention_freq, aes(x = Intention, y = PastAyahuasca, fill = prop)) +
 
 ```
 
-### Nature & Social Connectedness
+## Nature & Social Connectedness
 [copy about this section and what it was intended to do, maybe reference the other scales we used]
 
-#### Table 3: How Participants' Nature and Social Connectedness Evolved After Retreat
+### Table 3: How Participants' Nature and Social Connectedness Evolved After Retreat
 
 Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
 
@@ -742,7 +723,7 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
   )
 ```
 
-#### Table 4: Mixed Models on Nature and Social Connectedness
+### Table 4: Mixed Models on Nature and Social Connectedness
 
 Table 4 summarizes paired comparisons between *Baseline* and both subsqequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
 
@@ -837,10 +818,10 @@ ggplot(alldata, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
         labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
 ```
 
-### Recent Wellbeing
+## Recent Wellbeing
 [copy about this section]
 
-#### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
+### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
 
 Mean response on each **Recent Wellbeing** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
 
