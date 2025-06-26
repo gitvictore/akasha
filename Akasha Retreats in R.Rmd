@@ -710,7 +710,11 @@ This table summarizes paired comparisons between *Baseline* and both subsqequent
 
 Statistically significant improvements (p \< .05) were found primarily in items related to **social connectedness**. Participants reported increased feelings of connection to their community and others, reduced feelings of disconnection from others, and a stronger sense of belonging. Some of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
-Notably, the **most robust effects** were for “*I feel like I belong*” and “*I feel understood by others*,” both showing highly significant improvements (p \< .001). In contrast, items related to **nature connection** (e.g., awe in nature, spiritual bond with Earth, emotional connection to the natural world) and environmental motivation **showed** **no significant changes**. This pattern suggests the retreat had a **stronger and more immediate impact on social rather than nature-based aspects of connectedness**.
+Notably, the **most robust effects** between *Baseline* and *One-month* were for “*I feel understood by others*” and “*I feel disconnected from others*,” both showing highly significant improvements (p \< .001). Participants also reported feeling significantly more connected to their community and to others. These improvements were already evident at Follow-up, and **strengthened** at the *One-month* assessment.
+
+In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” which showed a slight but significant improvement, indicating that participants experienced increased attentiveness to subtle aspects of nature one month after the retreat.
+
+Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting the appreciation of details of nature.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
