@@ -355,7 +355,7 @@ table1(
 
 **Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38 %,** with retention varying by retreat from Tumã at 0 % retention, to Ninawa at 50 % retention. *Post-Retreat* questionnaire retention averaged 68 % overall, ranging from 36 % for COLIBRI to 84 % for Nixiwaka.
 
-```{r table2 survey completion, echo=FALSE}
+```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
 ordered_levels <- c("Ninawa", "COLIBRI", "Tumã", "Nixiwaka", "Total")
 
@@ -541,8 +541,6 @@ summary_nat <- cleaned_nat %>%
   group_by(Question, Timepoint) %>%
   summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
 
-
-
 summary_wb <- cleaned_wb %>%
   group_by(Question, Timepoint) %>%
   summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
@@ -714,7 +712,7 @@ Statistically significant improvements (p \< .05) were found primarily in items 
 
 Notably, the **most robust effects** were for “*I feel like I belong*” and “*I feel understood by others*,” both showing highly significant improvements (p \< .001). In contrast, items related to **nature connection** (e.g., awe in nature, spiritual bond with Earth, emotional connection to the natural world) and environmental motivation **showed** **no significant changes**. This pattern suggests the retreat had a **stronger and more immediate impact on social rather than nature-based aspects of connectedness**.
 
-```{r table: linear mixed model all_na, echo=FALSE}
+```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
   # only keep pid/timepoint/question/response
   select(pid, Timepoint, Question, Response) %>%
