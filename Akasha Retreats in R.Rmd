@@ -1,11 +1,13 @@
 ---
-title: "🌳 **Aldeia Akasha**</br>Ayahuasca and Nature & Social Connectedness</br><span style='font-size:0.5em;'>1H 2025 Results</span>"
-author: "Victor Eduardo and Michèle Barocchi, PhD"
-date: "Last Update: `r format(Sys.Date(), '%B %d, %Y')`"
+title: "Ayahuasca, Wellbeing, and Connectedness"
 output: 
   html_document: 
     toc: true
     css: "akasha-styles.css"
+    self_contained: true
+    includes:
+      before_body: title.html
+      in_header: favicon.html
     theme: flatly
     toc_depth: 4
   md_document:
@@ -289,7 +291,16 @@ alldata <- base_clean %>%
   full_join(omo_clean, by = "pid", suffix = c("", ".omo"))
 ```
 
-## Methods
+```{=html}
+<!-- # Abstract
+[draft abstract]
+
+# Introduction
+[draft literature review]
+-->
+```
+
+# Methods
 
 This pilot study administered **three (3) questionnaires (*Baseline*, *Post-Retreat*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
 
@@ -305,7 +316,7 @@ Immediately after the retreat, participants received the *Post-Retreat* question
 
 Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier questionnaires to allow for longtitudinal comparisons.
 
-We gratefully acknowledge the generous support and collaboration of the **Guardians and support staff of Aldeia Akasha**, without whose openness, cooperation, and hospitality this pilot study would not have been possible.
+We gratefully acknowledge the generous support and collaboration of the **Guardians and support staff of Aldeia Akasha ([homepage](https://uniretreats.org/akasha-retreat-center/))**, without whose openness, cooperation, and hospitality this pilot study would not have been possible.
 
 # Results
 

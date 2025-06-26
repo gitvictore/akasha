@@ -12,6 +12,12 @@
   color: #18bc9c;
 }
 
+/* Hide navbar title */
+h1.title {
+  display: none;
+}
+
+/* Body size */
 body {
   font-size: 1.5em;
 }
