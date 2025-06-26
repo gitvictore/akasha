@@ -323,11 +323,12 @@ We gratefully acknowledge the generous support and collaboration of the **Guardi
 ## Participant Overview
 
 ### Table 1: Baseline Participant Characteristics by Retreat
+
 **Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire.
 
-**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2% held a bachelor’s degree, 25.4% a master’s, 19.0% vocational training, 15.9% upper secondary, 7.9% doctoral, and 1.6% primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2%)**, United Kingdom (19.0%), and United States (17.5%), and **the largest group resided in Brazil (33.3%)** with substantial representation in the UK (25.4%) and United States (17.5%).
+**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Education was high**: over half had a bachelor's (30.2%) or master's (25.4%) degree. The sample was **internationally diverse; most originated from Brazil (30.2%)**, followed by the United Kingdom (19.0%), and United States (17.5%).
 
-Ceremony **intentions were led by spiritual growth** (50.8%), mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **36.5% had taken it more than ten times**, 17.5% once, 11.1% 2–5 times, 14.3% 6–10 times, and 20.6% were first-timers.
+**Ceremony intentions were led by spiritual growth (50.8%)**, followed by mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **over a third (36.5%) had taken ayahuasca 10+ times** while **one-fifth (20.6%) were first-timers**.
 
 ```{r table1, echo=FALSE}
 ## Table1 only from baseline retreat with matched participants
@@ -370,7 +371,7 @@ table1(
 
 *Displaying only participants with IDs matched to baseline*
 
-**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Ninawa at 50% retention to Tumã at 0% retention. *Follow-up* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
+**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 50% retention. *Follow-up* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
@@ -608,7 +609,7 @@ ggplot(freq, aes(x = PastAyahuasca, y = n)) +
 
 #### Chart 2: Why are People Taking Ayahuasca?
 
-Across all levels of prior ayahuasca experience, **spiritual growth** nearly always emerged as the most common intention, particularly among those with extensive experience ("6–10 times" and "10+ times"), where it made up the clear majority (56% and 70%, respectively). **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, **mental health** intentions peaked in the "2–5 times" group, overtaking spiritual growth as an intention in that group. This may suggest a transitional phase where participants engage with ayahuasca as a psychologically therapeutic tool before moving toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
+**Spiritual growth** was the most common intention across nearly all experience levels. It dominated especially among participants with more ayahuasca experience, making up **56%** of intentions among those who had taken it 6–10 times and **70%** among those with 10+ experiences. **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, in the "2–5 times" group, **mental health** was the leading intention, suggesting that participants newer to ayahuasca may engage with it initially for psychological reasons before shifting toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
 
 ```{r ayahuasca-by-intention, echo=FALSE, fig.align='left'}
 
