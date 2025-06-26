@@ -7,6 +7,7 @@ output:
     toc: true
     css: "akasha-styles.css"
     theme: flatly
+    toc_depth: 4
   md_document:
     preserve_yaml: false
 always_allow_html: true
@@ -518,12 +519,6 @@ cleaned_wb <- all_wellbeing %>%
     )
   )
 
-cleaned_wb_complete <- cleaned_wb %>%
-  filter(!is.na(Response)) %>%
-  group_by(pid) %>%
-  filter(n_distinct(Timepoint) == 2) %>%
-  ungroup()
-
 cleaned_all <- all_long %>%
   mutate(
     Question = str_remove(Question_raw, "^.* - "),
@@ -543,7 +538,8 @@ summary_nat <- cleaned_nat %>%
 
 summary_wb <- cleaned_wb %>%
   group_by(Question, Timepoint) %>%
-  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
+  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop") %>%
+  filter(Timepoint != "Follow-up")
 ```
 
 ### Past Ayahuasca Exploration
@@ -635,38 +631,14 @@ ggplotly(p, tooltip = "text") %>%
     )
 ```
 
-```{r past experiences, eval=FALSE, include=FALSE}
-# 1) Build a data.frame of differences
-diffs <- cleaned_nat_complete %>%
-  filter(Question == "I feel disconnected from others. (inv.)") %>%
-  select(pid, Timepoint, Response) %>%
-  pivot_wider(names_from = Timepoint, values_from = Response) %>%
-  mutate(diff = Baseline - `One-month`) %>%
-  drop_na(diff) %>%
-  # now left-join PastAyahuasca from base_clean
-  left_join(
-    base_clean %>% select(pid, PastAyahuasca) %>% distinct(),
-    by = "pid"
-  )
+### Nature & Social Connectedness
+[copy about this section and what it was intended to do, maybe reference the other scales we used]
 
-skim(diffs)
-
-# 2a) Histogram + density
-ggplot(diffs, aes(x = diff)) +
-  geom_histogram(aes(y = ..density..), bins = 8, color = "black", fill = "gray90") +
-  geom_density(color = "blue", size = 1) +
-  labs(
-    x = "Baseline – One-month", y = "Density",
-    title = "Distribution of Difference Scores"
-  ) +
-  theme_minimal()
-```
-
-### Table 3: How Participants' **Nature and Social Connectedness** Evolved After Retreat
+#### Table 3: How Participants' Nature and Social Connectedness Evolved After Retreat
 
 Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
 
-```{r chart: connectedness across timepoints, echo=FALSE, fig.width=16, fig.height=8}
+```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=8}
 ### nat
 ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
   geom_line(color = "gray40") +
@@ -704,9 +676,9 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
   )
 ```
 
-### Table 4: Mixed Models on Nature and Social Connectedness
+#### Table 4: Mixed Models on Nature and Social Connectedness
 
-This table summarizes paired comparisons between *Baseline* and both subsqequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
+Table 4 summarizes paired comparisons between *Baseline* and both subsqequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
 
 Statistically significant improvements (p \< .05) were found primarily in items related to **social connectedness**. Participants reported increased feelings of connection to their community and others, reduced feelings of disconnection from others, and a stronger sense of belonging. Some of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
@@ -739,51 +711,57 @@ results_nat_complete <- cleaned_nat %>%
 slim_results_nat <- results_nat_complete %>%
   mutate(
     contrast = str_replace(contrast, " - ", " to "),
-    contrast = str_remove_all(contrast, "\\(|\\)")) %>%
-    filter(contrast != "Follow-up to One-month") %>%
-    mutate(,
+    contrast = str_remove_all(contrast, "\\(|\\)"),
     Estimate = round(estimate, 2),
-    SE = round(SE, 2),
-    DF = round(df, 1),
-    t_value = round(t.ratio, 2),
-    # formatted p-value
-    p_fmt = case_when(
+    SE       = round(SE, 2),
+    DF       = round(df, 1),
+    t_value  = round(t.ratio, 2),
+    p_fmt    = case_when(
       p.value < 0.001 ~ "<.001",
-      p.value < 0.01 ~ "<.01",
-      TRUE ~ sprintf("%.3f", p.value)
+      p.value < 0.01  ~ "<.01",
+      TRUE            ~ sprintf("%.3f", p.value)
     ),
-    # stars
     stars = case_when(
       p.value < 0.001 ~ "***",
-      p.value < 0.01 ~ "**",
-      p.value < 0.05 ~ "*",
-      TRUE ~ ""
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      TRUE            ~ ""
     ),
-    # combine them
-    `p value` = paste0(p_fmt, stars)
+    p_colored = case_when(
+      p.value < 0.001 ~ cell_spec(paste0(p_fmt, stars), color = "white", background = "#5E4FA2", bold = TRUE),
+      p.value < 0.01  ~ cell_spec(paste0(p_fmt, stars), color = "white", background = "#3288BD", bold = TRUE),
+      p.value < 0.05  ~ cell_spec(paste0(p_fmt, stars), color = "black", background = "#ABDDA4"),
+      TRUE            ~ paste0(p_fmt, stars)
+    ),
+    Estimate_colored = case_when(
+  p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
+  p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
+  p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
+  TRUE            ~ sprintf("%.2f", Estimate))
   ) %>%
+  filter(contrast != "Follow-up to One-month") %>%
   select(
     Question,
     Contrast = contrast,
-    Estimate,
+    Estimate = Estimate_colored,
     SE,
     DF,
-    `t value` = t_value,
-    `p value`
+    `p value` = p_colored
   )
 
 kable(
   slim_results_nat,
-  format    = "html",
-  align     = c("l", "l", "r", "r", "r", "r", "r"),
-  col.names = c("Question", "Timeline Pair", "Estimate", "SE", "DF", "t-value", "p-value")
+  format = "html",
+  escape = FALSE,
+  align = c("l", "l", "r", "r", "r", "r"),
+  col.names = c("Question", "Timeline Pair", "Estimate", "SE", "DF", "p-value")
 ) %>%
   kable_styling(
     bootstrap_options = c("striped", "condensed"),
-    position          = "left"
+    position = "left"
   ) %>%
   footnote(
-    general = "Significance codes: * p < .05; ** p < .01; *** p < .001",
+    general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
 ```
 
@@ -793,15 +771,15 @@ ggplot(alldata, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
         labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
 ```
 
-### Table 5: How Participants' **Recent Wellbeing** Evolved After Retreat
+### Recent Wellbeing
+[copy about this section]
+
+#### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
 
 Mean response on each **Recent Wellbeing** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
 
 ```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=14}
 ## wellbeing
-
-summary_wb <- summary_wb %>%
-  filter(Timepoint != "Follow-up")
 
 ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
   geom_line(color = "gray40") +
@@ -820,7 +798,6 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
   scale_color_manual(
     values = c(
       "Baseline"   = "#A6CEE3",
-      "Follow-up"  = "#1F78B4",
       "One-month"  = "#08306B"
     )
   ) +
@@ -838,6 +815,89 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
     y = "Mean response (1–5)"
   )
 ```
+
+#### Table 6: Mixed Models on Recent Wellbeing
+
+Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains from baseline to one month following the retreat. As shown in *Table 6*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (p < .001\*\*\*) and anxiety (p < .01\*\*), depression (p < .01\*\*), difficulty concentrating (p < .01\*\*), and irritability (p = .033\*). Positive shifts were also observed in life satisfaction (p = .013\*), calmness and peace (p < .01\*\*), and ease making decisions (p = .041\*), with participants also reporting **more frequent experiences of awe or transcendence** (p < .001\*\*\*).
+
+Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
+
+```{r table: wellness lmm, echo=FALSE}
+results_wb_complete <- cleaned_wb %>%
+  # only keep pid/timepoint/question/response
+  select(pid, Timepoint, Question, Response) %>%
+  # for reproducibility, ensure Timepoint is a factor in the right order
+  mutate(Timepoint = factor(Timepoint, levels = c("Baseline", "One-month"))) %>%
+  # nest by Question
+  nest_by(Question) %>%
+  mutate(
+    # fit LMM
+    model = list(lmer(Response ~ Timepoint + (1 | pid), data = data, REML = FALSE)),
+    # emmeans + pairwise contrasts
+    em = list(emmeans(model, ~Timepoint)),
+    contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
+  ) %>%
+  # unnest the contrasts
+  select(Question, contrasts) %>%
+  ungroup() %>%
+  unnest(contrasts)
+
+slim_results_wb <- results_wb_complete %>%
+  mutate(
+    contrast = str_replace(contrast, " - ", " to "),
+    contrast = str_remove_all(contrast, "\\(|\\)"),
+    Estimate = round(estimate, 2),
+    SE       = round(SE, 2),
+    DF       = round(df, 1),
+    t_value  = round(t.ratio, 2),
+    p_fmt    = case_when(
+      p.value < 0.001 ~ "<.001",
+      p.value < 0.01  ~ "<.01",
+      TRUE            ~ sprintf("%.3f", p.value)
+    ),
+    stars = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      TRUE            ~ ""
+    ),
+    p_colored = case_when(
+      p.value < 0.001 ~ cell_spec(paste0(p_fmt, stars), color = "white", background = "#5E4FA2", bold = TRUE),
+      p.value < 0.01  ~ cell_spec(paste0(p_fmt, stars), color = "white", background = "#3288BD", bold = TRUE),
+      p.value < 0.05  ~ cell_spec(paste0(p_fmt, stars), color = "black", background = "#ABDDA4"),
+      TRUE            ~ paste0(p_fmt, stars)
+    ),
+    Estimate_colored = case_when(
+  p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
+  p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
+  p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
+  TRUE            ~ sprintf("%.2f", Estimate))
+  ) %>%
+  select(
+    Question,
+    Contrast = contrast,
+    Estimate = Estimate_colored,
+    SE,
+    DF,
+    `p value` = p_colored
+  )
+
+kable(
+  slim_results_wb,
+  format = "html",
+  escape = FALSE, # <-- important to render HTML from cell_spec
+  align = c("l", "l", "r", "r", "r", "r"),
+  col.names = c("Question", "Timeline Pair", "Estimate", "SE", "DF", "p-value")
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "condensed"),
+    position = "left"
+  ) %>%
+  footnote(
+    general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
+  )
+```
+
 
 
 <!--
@@ -1215,5 +1275,32 @@ fire_ice_plot(
   width       = 800,
   height      = 2000
 )
+```
+
+```{r past experiences, eval=FALSE, include=FALSE}
+# 1) Build a data.frame of differences
+diffs <- cleaned_nat_complete %>%
+  filter(Question == "I feel disconnected from others. (inv.)") %>%
+  select(pid, Timepoint, Response) %>%
+  pivot_wider(names_from = Timepoint, values_from = Response) %>%
+  mutate(diff = Baseline - `One-month`) %>%
+  drop_na(diff) %>%
+  # now left-join PastAyahuasca from base_clean
+  left_join(
+    base_clean %>% select(pid, PastAyahuasca) %>% distinct(),
+    by = "pid"
+  )
+
+skim(diffs)
+
+# 2a) Histogram + density
+ggplot(diffs, aes(x = diff)) +
+  geom_histogram(aes(y = ..density..), bins = 8, color = "black", fill = "gray90") +
+  geom_density(color = "blue", size = 1) +
+  labs(
+    x = "Baseline – One-month", y = "Density",
+    title = "Distribution of Difference Scores"
+  ) +
+  theme_minimal()
 ```
 -->
