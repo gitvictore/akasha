@@ -544,9 +544,9 @@ summary_wb <- cleaned_wb %>%
 ```
 
 ### Who's Taken Ayahuasca Before, and Why
-The horizontal bar chart displays the frequency of prior ayahuasca experience among participants at *Baseline* (*n*=63). The largest group reported taking ayahuasca *more than 10 times (23 participants, 37%)*, followed by those who had never taken it (13 participants, 21%). Smaller proportions had taken it once (17%), 6–10 times (14%), or 2–5 times (11%). Overall, the sample includes both ayahuasca-naive and experienced participants, with a notable concentration at both extremes of experience.
 
 #### Chart 1: How Many Times Have Participants Taken Ayahuasca?
+Chart 1 displays the frequency of prior ayahuasca experience among participants at *Baseline* (*n*=63). The largest group reported taking ayahuasca *more than 10 times (23 participants, 37%)*, followed by those who had never taken it (13 participants, 21%). Smaller proportions had taken it once (17%), 6–10 times (14%), or 2–5 times (11%). Overall, the sample includes both ayahuasca-naive and experienced participants, with a notable concentration at both extremes of experience.
 
 ```{r ayahuasca frequency, echo=FALSE, fig.align='left', fig.width=10}
 
@@ -590,8 +590,9 @@ ggplot(freq, aes(x = PastAyahuasca, y = n)) +
     axis.text = element_text(size = 12))
 ```
 
+#### Chart 2: Why are People Taking Ayahuasca?
 
-```{r ayahuasca-by-intention-plotly, echo=FALSE, fig.align='center'}
+```{r ayahuasca-by-intention, echo=FALSE, fig.align='left'}
 
 # Prepare counts + proportions
 intention_freq <- base_clean %>%
@@ -682,7 +683,7 @@ ggplot(intention_freq, aes(x = Intention, y = PastAyahuasca, fill = prop)) +
 
 ### Table 3: How Participants' Nature and Social Connectedness Evolved After Retreat
 
-Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
+Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree.
 
 ```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=8}
 ### nat
@@ -823,7 +824,7 @@ ggplot(alldata, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
 
 ### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
 
-Mean response on each **Recent Wellbeing** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree
+Mean response on each **Recent Wellbeing** section at two timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree. Note that recent wellbeing questions were not asked at *Follow-up*, only at *Baseline* and *One-month*.
 
 ```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=14}
 ## wellbeing
