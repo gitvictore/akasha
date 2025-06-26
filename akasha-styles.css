@@ -20,6 +20,8 @@ h1.title {
 /* Body size */
 body {
   font-size: 1.5em;
+  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height:1.5;
 }
 
 h4.subtitle {

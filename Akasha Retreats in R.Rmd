@@ -1,5 +1,5 @@
 ---
-title: "Ayahuasca, Wellbeing, and Connectedness"
+title: "Aldeia Akasha: Ayahuasca, Wellbeing, and Connectedness"
 output: 
   html_document: 
     toc: true
@@ -320,13 +320,12 @@ We gratefully acknowledge the generous support and collaboration of the **Guardi
 
 # Results
 
-## Descriptive Statistics
+## Participant Overview
 
+### Table 1: Baseline Participant Characteristics by Retreat
 **Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire. **Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: 30.2% held a bachelor’s degree, 25.4% a master’s, 19.0% vocational training, 15.9% upper secondary, 7.9% doctoral, and 1.6% primary schooling only. The sample was **internationally diverse; most originated from Brazil (30.2%)**, United Kingdom (19.0%), and United States (17.5%), and **the largest group resided in Brazil (33.3%)** with substantial representation in the UK (25.4%) and United States (17.5%).
 
 Ceremony **intentions were led by spiritual growth** (50.8%), mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **36.5% had taken it more than ten times**, 17.5% once, 11.1% 2–5 times, 14.3% 6–10 times, and 20.6% were first-timers.
-
-### Table 1: Baseline Participant Characteristics by Retreat
 
 ```{r table1, echo=FALSE}
 ## Table1 only from baseline retreat with matched participants
@@ -557,7 +556,7 @@ summary_wb <- cleaned_wb %>%
   filter(Timepoint != "Follow-up")
 ```
 
-### Who's Taken Ayahuasca Before, and Why
+### Who's Taken Ayahuasca Before, and Why?
 
 #### Chart 1: How Many Times Have Participants Taken Ayahuasca?
 
@@ -689,6 +688,8 @@ ggplot(intention_freq, aes(
 Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree.
 
 ```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=8}
+labeltextsize <- 6
+
 ### nat
 ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
   geom_line(color = "gray40") +
@@ -697,7 +698,7 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
     vjust = 2.0,
-    size = 5,
+    size = labeltextsize,
     family = "sans"
   ) +
   facet_wrap(~Question,
@@ -712,11 +713,11 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
       "One-month"  = "#116b07"
     )
   ) +
-  theme_minimal(base_size = 16) +
+  theme_minimal(base_size = 20) +
   theme(
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
-    strip.text       = element_text(size = 13, face = "bold"),
+    strip.text       = element_text(face = "bold"),
     axis.text.x      = element_text(angle = 45, hjust = 1),
     panel.grid.major = element_line(color = "gray90"),
     legend.position  = "none"
@@ -737,7 +738,7 @@ Notably, the **most robust effects** between *Baseline* and *One-month* were for
 
 In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” which showed a slight but significant improvement, indicating that participants experienced increased attentiveness to subtle aspects of nature one month after the retreat.
 
-Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting the appreciation of details of nature.
+Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting an appreciation of the small details of nature.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
@@ -840,7 +841,7 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
     vjust = -1.0,
-    size = 5,
+    size = labeltextsize,
     family = "sans"
   ) +
   facet_wrap(~Question,
@@ -854,11 +855,11 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
       "One-month"  = "#08306B"
     )
   ) +
-  theme_minimal(base_size = 16) +
+  theme_minimal(base_size = 20) +
   theme(
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
-    strip.text       = element_text(size = 13, face = "bold"),
+    strip.text       = element_text(face = "bold"),
     axis.text.x      = element_text(angle = 45, hjust = 1),
     panel.grid.major = element_line(color = "gray90"),
     legend.position  = "none"
