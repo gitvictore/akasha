@@ -116,10 +116,6 @@ basetxt_for_join <- basetxt %>%
     `PRE3.2 - previous ayahuasca`,
     `UserLanguage - User Language`,
     `PRE1.10 - retreat - Selected Choice`,
-    `PRE3.3 - intention - Selected Choice`,
-    `PRE3.3_5_TEXT - intention - Not listed - Text`,
-    `PRE3.3_1_TEXT - intention - Mental health (e.g., depression, anxiety, addiction) - Text`,
-    `PRE3.3_3_TEXT - intention - Physical health (e.g., chronic pain) - Text`,
     `PRE4.2 - connection definition`,
     `PRE1.10 - retreat - Selected Choice`,
     `LocationLatitude - Location Latitude`,
@@ -291,6 +287,21 @@ base_clean <- base_clean %>%
 alldata <- base_clean %>%
   full_join(fu_clean, by = "pid", suffix = c("", ".fu")) %>%
   full_join(omo_clean, by = "pid", suffix = c("", ".omo"))
+
+
+# Preferred for HTML output
+library(sysfonts)
+library(showtext)
+
+font_add_google("Lato", "lato")
+showtext_auto()
+
+# Set Lato as the default ggplot2 font
+theme_set(theme_minimal(base_family = "lato"))
+update_geom_defaults("text",   list(family = "lato"))
+update_geom_defaults("label",  list(family = "lato"))
+update_geom_defaults("point",  list(family = "lato"))
+
 ```
 
 ```{=html}
@@ -367,6 +378,9 @@ table1(
   data = base_clean,
   overall = "Total"
 )
+
+cat('</div>')
+
 ```
 
 ### Table 2: Questionnaire Completion by Retreat
@@ -646,8 +660,7 @@ ggplot(intention_freq, aes(
     aes(label = ifelse(prop >= 0.08, scales::percent(prop, accuracy = 1), "")),
     position = position_fill(vjust = 0.5),
     color = "black",
-    size = 3.5,
-    family = "sans"
+    size = 3.5
   ) +
   scale_y_continuous(labels = scales::percent_format(), expand = expansion(0)) +
   scale_fill_brewer(palette = "Set2") +
@@ -722,8 +735,7 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
     vjust = 2.0,
-    size = labeltextsize,
-    family = "sans"
+    size = labeltextsize
   ) +
   facet_wrap(~Question,
     nrow = 2, scales = "fixed",
@@ -825,7 +837,7 @@ slim_results_nat <- results_nat_complete %>%
     `p value` = p_colored
   )
 
-kable(
+k <- kable(
   slim_results_nat,
   format = "html",
   escape = FALSE,
@@ -839,6 +851,12 @@ kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
+
+for (i in seq_len(ncol(slim_results_nat))) {
+  k <- k %>% column_spec(i, extra_css = "font-size: 0.95em;")
+}
+
+k
 ```
 
 ```{r violintest, eval=FALSE, include=FALSE}
@@ -865,8 +883,7 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
     vjust = -1.0,
-    size = labeltextsize,
-    family = "sans"
+    size = labeltextsize
   ) +
   facet_wrap(~Question,
     nrow = 3, scales = "fixed",
