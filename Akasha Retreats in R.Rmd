@@ -253,7 +253,8 @@ base_clean <- base_clean %>%
         "Bachelor's",
         "Master's",
         "Doctoral"
-      )
+      ),
+      ordered = TRUE
     ),
     CountryOrigin = fct_infreq(CountryOrigin),
     CountryResidence = fct_infreq(CountryResidence),
@@ -280,7 +281,8 @@ base_clean <- base_clean %>%
         "2–5 times",
         "6–10 times",
         "More than 10 times"
-      )
+      ),
+      ordered = TRUE
     )
     # Age remains numeric in base_clean
   )
@@ -607,7 +609,7 @@ ggplot(freq, aes(x = PastAyahuasca, y = n)) +
     axis.text = element_text(size = 12))
 ```
 
-#### Chart 2: Why are People Taking Ayahuasca?
+#### Chart 2: Why are Participants Taking Ayahuasca?
 
 **Spiritual growth** was the most common intention across nearly all experience levels. It dominated especially among participants with more ayahuasca experience, making up **56%** of intentions among those who had taken it 6–10 times and **70%** among those with 10+ experiences. **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, in the "2–5 times" group, **mental health** was the leading intention, suggesting that participants newer to ayahuasca may engage with it initially for psychological reasons before shifting toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
 
@@ -681,6 +683,26 @@ ggplot(intention_freq, aes(
 # Ayahuasca Experience" ) + theme_light(base_size = 13) + theme( panel.grid =
 # element_blank(), axis.text.x = element_text(angle = 30, hjust = 1) )
 ```
+
+```{r spiritual intention testing, echo=FALSE}
+base_clean <- base_clean %>%
+  mutate(
+    spiritual_intent = ifelse(Intention == "Spiritual growth", 1, 0),
+    PastAya_bin = fct_collapse(
+      PastAyahuasca,
+      Low  = c("Never", "One time", "2–5 times"),
+      High = c("6–10 times", "More than 10 times")
+    )
+  )
+
+tbl <- table(base_clean$PastAya_bin,
+              base_clean$spiritual_intent)
+
+fisher.test(tbl, alternative = "two.sided")
+```
+
+
+Indeed, participants with high ayahuasca experience (6 previous ceremonies or more) had significantly greater odds of reporting spiritual-growth intent compared to those with low experience. A Fisher’s Exact Test indicated that the odds of choosing spiritual intent were **3.4 times higher** in the high-experience group than in the low-experience group (odds ratio = 3.40, 95% CI: 1.10 to 11.14, *p* = 0.0237). Because the confidence interval does not include 1, this suggests a statistically significant association between past ayahuasca use and reported spiritual motivation. While the wide confidence interval reflects the limited data in this pilot, there is evidence of an association worth further study.
 
 ## Nature & Social Connectedness
 
