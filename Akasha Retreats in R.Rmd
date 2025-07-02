@@ -38,123 +38,576 @@ library(ggplot2)
 library(emmeans)
 library(lme4)
 library(purrr)
+library(readxl)
+library(sysfonts)
+library(showtext)
 
-# 1. Read all sheets :)
-location <- "/Users/victor/Documents/Akasha/Akasha Retreats.xlsx"
-
-basev <- readxl::read_excel(location, sheet = "baseline_v")
-fu <- readxl::read_excel(location, sheet = "fu_v")
-omo <- readxl::read_excel(location, sheet = "1mo_v")
-basetxt <- readxl::read_excel(location, sheet = "baseline")
-
-basev$Timepoint <- "Baseline"
-fu$Timepoint <- "Follow-up"
-omo$Timepoint <- "1-Month"
-```
-
-```{r filter for finished and set pid, include=FALSE}
-cols_to_drop <- c(
-  "Response Type",
-  "IP Address",
-  "Progress",
-  "Recipient Last Name",
-  "Recipient First Name",
-  "Recipient Email",
-  "External Data Reference",
-  "DistributionChannel - Distribution Channel",
-  "SC0 - Score"
-)
-
-# 1) Define a reusable cleaning function
-clean_survey <- function(df, text_col) {
-  df %>%
-    #filter(Finished != 0) %>%
-    mutate(
-      pid = if_else(
-        .data[[text_col]] != -99,
-        .data[[text_col]],
-        .data[["Participant ID"]]
-      )
-    ) %>%
-    select(
-      -all_of(text_col), # drop the free‐text override
-      -`Participant ID`, # now drop the original ID
-      -all_of(cols_to_drop) # and your other cols
+# ---- Basev Import and Clean ----
+basev <- read_excel(
+  "~/Documents/Akasha/baseline-values 6-30-2025.xlsx",
+  col_types = c(
+    "skip", # Start Date
+    "skip", # End Date
+    "skip", # Response Type
+    "skip", # IP Address
+    "skip", # Progress
+    "skip", # Duration (in seconds)
+    "numeric", # Finished
+    "date", # Recorded Date
+    "text", # Response ID
+    "skip", # Recipient Last Name
+    "skip", # Recipient First Name
+    "skip", # Recipient Email
+    "skip", # External Data Reference
+    "skip", # Location Latitude
+    "skip", # Location Longitude
+    "skip", # Distribution Channel
+    "skip", # User Language
+    "skip", # consent
+    "skip", # retreat - Selected Choice
+    "skip", # retreat - Not displayed - Text
+    "numeric", # age
+    "skip", # gender - Selected Choice
+    "skip", # gender - Not listed - Text
+    "text", # Text (country of origin)
+    "text", # Text (country of residence)
+    "skip", # education
+    "skip", # language - Selected Choice
+    "skip", # language - Not listed - Text
+    "text", # Text (religion or faith)
+    "skip", # practices - Selected Choice
+    "skip", # practices - Not listed (please specify) - Text
+    rep("numeric", 15), # wellbeing items
+    "skip", # previous ayahuasca
+    "skip", # intention - Selected Choice
+    "skip", # intention - Mental health (e.g., depression, anxiety, addiction) - Text
+    "skip", # intention - Physical health (e.g., chronic pain) - Text
+    "skip", # intention - Not listed - Text
+    rep("numeric", 11), # connectedness items
+    "text", # connection definition
+    "skip", # IMPORTANT: Before clicking Submit… Participant ID: [Field-…]
+    "skip", # Score
+    "text" # Participant ID
+  ),
+  skip = 1 # skip the extra row in Qualtrics
+) %>%
+  rename(
+    bl_recorded_date = "Recorded Date",
+    bl_response_id = "Response ID",
+    country_origin = "Text...5",
+    country_residence = "Text...6",
+    religion = "Text...7",
+    bl_conn_def = "connection definition",
+    pid = "Participant ID",
+    `bl_wb_1 - I have felt calm and at peace.` =
+      "baseline wellbeing - I have felt calm and at peace.",
+    `bl_wb_2 - I have felt irritable or easily frustrated.` =
+      "baseline wellbeing - I have felt irritable or easily frustrated.",
+    `bl_wb_3 - I have experienced feelings of loneliness.` =
+      "baseline wellbeing - I have experienced feelings of loneliness.",
+    `bl_wb_4 - I have felt down, depressed, or hopeless.` =
+      "baseline wellbeing - I have felt down, depressed, or hopeless.",
+    `bl_wb_5 - I have felt anxious or \"on edge\".` =
+      "baseline wellbeing - I have felt anxious or \"on edge\".",
+    `bl_wb_6 - I have experienced physical pain or discomfort.` =
+      "baseline wellbeing - I have experienced physical pain or discomfort.",
+    `bl_wb_7 - I have had difficulty concentrating or focusing.` =
+      "baseline wellbeing - I have had difficulty concentrating or focusing.",
+    `bl_wb_8 - I have had difficulty sleeping.` =
+      "baseline wellbeing - I have had difficulty sleeping.",
+    `bl_wb_9 - I have found it easy to make decisions.` =
+      "baseline wellbeing - I have found it easy to make decisions.",
+    `bl_wb_10 - I have felt motivated to accomplish daily tasks.` =
+      "baseline wellbeing - I have felt motivated to accomplish daily tasks.",
+    `bl_wb_11 - I have felt a sense of purpose or meaning in life.` =
+      "baseline wellbeing - I have felt a sense of purpose or meaning in life.",
+    `bl_wb_12 - I have experienced moments of awe or transcendence.` =
+      "baseline wellbeing - I have experienced moments of awe or transcendence.",
+    `bl_wb_13 - I have been overall satisfied with my life.` =
+      "baseline wellbeing - I have been overall satisfied with my life.",
+    `bl_wb_14 - I have felt supported by my social network.` =
+      "baseline wellbeing - I have felt supported by my social network.",
+    `bl_wb_15 - I have experienced conflict or tension in my relationships.` =
+      "baseline wellbeing - I have experienced conflict or tension in my relationships.",
+    `bl_nsc_1 - I feel emotionally connected to the natural world.` =
+      "connectedness - I feel emotionally connected to the natural world.",
+    `bl_nsc_2 - I view humans as separate from nature.` =
+      "connectedness - I view humans as separate from nature.",
+    `bl_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+      "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
+    `bl_nsc_4 - I feel a sense of awe and wonder when in nature.` =
+      "connectedness - I feel a sense of awe and wonder when in nature.",
+    `bl_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+      "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
+    `bl_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
+      "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
+    `bl_nsc_7 - I feel connected to others.` =
+      "connectedness - I feel connected to others.",
+    `bl_nsc_8 - I feel disconnected from others.` =
+      "connectedness - I feel disconnected from others.",
+    `bl_nsc_9 - I feel like I belong.` =
+      "connectedness - I feel like I belong.",
+    `bl_nsc_10 - I feel understood by others.` =
+      "connectedness - I feel understood by others.",
+    `bl_nsc_11 - I feel connected to my community.` =
+      "connectedness - I feel connected to my community."
+  ) %>%
+  mutate(
+    bl_recorded_date = as.Date(bl_recorded_date),
+    retreat = case_when(
+      bl_recorded_date <= as.Date("2025-02-07") ~ "Ninawa",
+      bl_recorded_date <= as.Date("2025-02-14") ~ "Colibri",
+      bl_recorded_date <= as.Date("2025-03-02") ~ "Tumã",
+      bl_recorded_date <= as.Date("2025-04-25") ~ "Nixiwaka",
+      TRUE ~ NA_character_
     )
-}
+  ) %>%
+  filter(Finished != 0) %>%
+  mutate(
+    timepoint = "Baseline"
+  ) %>%
+  relocate(c(pid, bl_response_id, retreat), .before = 1) %>%
+  select(-Finished)
 
-# 2) Call it for each data frame, giving the text‐ID column name as a string
-fu_clean <- clean_survey(fu, "FU1.2_1_TEXT - What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text")
-omo_clean <- clean_survey(omo, "OMO1.2_1_TEXT - What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text")
+# ---- Basetxt Import and Clean ----
+basetxt <- read_excel(
+  "~/Documents/Akasha/baseline-labels 6-30-2025.xlsx",
+  skip = 1,
+  col_types = c(
+    "skip", # Start Date
+    "skip", # End Date
+    "skip", # Response Type
+    "skip", # IP Address
+    "skip", # Progress
+    "skip", # Duration (in seconds)
+    "skip", # Finished
+    "skip", # Recorded Date
+    "text", # Response ID
+    "skip", # Recipient Last Name
+    "skip", # Recipient First Name
+    "skip", # Recipient Email
+    "skip", # External Data Reference
+    "skip", # Location Latitude
+    "skip", # Location Longitude
+    "skip", # Distribution Channel
+    "skip", # User Language
+    "skip", # consent
+    "skip", # retreat - Selected Choice
+    "skip", # retreat - Not displayed - Text
+    "skip", # age
+    "text", # gender - Selected Choice
+    "text", # gender - Not listed - Text
+    "skip", # Text (country of origin)
+    "skip", # Text (country of residence)
+    "text", # education
+    "text", # language - Selected Choice
+    "text", # language - Not listed - Text
+    "skip", # What is your religion or belief system?
+    "text", # practices - Selected Choice
+    "text", # practices - Not listed (please specify) - Text
+    rep("skip", 15), # skip the wellbeing items
+    "text", # previous ayahuasca
+    "text", # intention - Selected Choice
+    "text", # intention - Mental health (e.g., depression, anxiety, addiction) - Text
+    "text", # intention - Physical health (e.g., chronic pain) - Text
+    "text", # intention - Not listed - Text
+    rep("skip", 11), # connectedness items
+    "skip", # connection definition
+    "skip", # IMPORTANT: Before clicking Submit… Participant ID: [Field-…]
+    "skip", # Score
+    "skip" # Participant ID
+  )
+) %>%
+  rename(
+    prev_ayahuasca = "previous ayahuasca",
+    intention = "intention - Selected Choice",
+    intent_mental = "intention - Mental health (e.g., depression, anxiety, addiction) - Text",
+    intent_physical = "intention - Physical health (e.g., chronic pain) - Text",
+    intent_other = "intention - Not listed - Text",
+    lang_sel = "language - Selected Choice",
+    lang_txt = "language - Not listed - Text",
+    gender = "gender - Selected Choice",
+    gender_other = "gender - Not listed - Text",
+    practices = "practices - Selected Choice",
+    practices_other = "practices - Not listed (please specify) - Text"
+  ) %>%
+  mutate(
+    # if they chose “Not listed”, language_not_listed will be non-NA,
+    # otherwise it’ll be NA – so coalesce will pick the custom text first
+    lang_txt = na_if(lang_txt, ""),
+    language = coalesce(lang_txt, lang_sel),
+    gender_other = na_if(gender_other, ""),
+    gender = coalesce(gender_other, gender),
+    practices_other = na_if(practices_other, ""),
+    practices = coalesce(practices_other, practices)
+  ) %>%
+  select(-lang_sel, -lang_txt, -gender_other, -practices_other) %>%
+  relocate(`Response ID`, .before = 1)
+
+# ---- Follow-up Import and Clean ---- ----
+fu <- read_excel(
+  "~/Documents/Akasha/follow-up 6-30-2025.xlsx",
+  col_types = c(
+    "skip", # Start Date
+    "skip", # End Date
+    "skip", # Response Type
+    "skip", # IP Address
+    "skip", # Progress
+    "skip", # Duration (in seconds)
+    "numeric", # Finished
+    "date", # Recorded Date
+    "text", # Response ID
+    "skip", # Recipient Last Name
+    "skip", # Recipient First Name
+    "skip", # Recipient Email
+    "skip", # External Data Reference
+    "skip", # Location Latitude
+    "skip", # Location Longitude
+    "skip", # Distribution Channel
+    "skip", # User Language
+    "skip", # consent
+    "skip", # What is the Participant ID you were given at the end of your first questionnaire? - Selected Choice
+    "text", # What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text
+    "skip", # age
+    "skip", # gender - Selected Choice
+    "skip", # gender - Not listed - Text
+    "skip", # Country of Origin
+    "skip", # Country of Residence
+    "skip", # education
+    "skip", # language - Selected Choice
+    "skip", # language - Not listed - Text
+    "skip", # Religion
+    "skip", # practices - Selected Choice
+    "skip", # practices - Not listed (please specify) - Text
+    "numeric", # after ceremony feeling - Relaxed and at peace
+    "numeric", # after ceremony feeling - Connected to myself
+    "numeric", # after ceremony feeling - Connected to others
+    "numeric", # after ceremony feeling - Emotionally balanced
+    "numeric", # after ceremony feeling - Insightful about my life or challenges
+    "numeric", # after ceremony feeling - Confused and disoriented
+    "text", # helpful aspects of ceremony
+    "text", # greatest emotion
+    "numeric", # ceremonial setting aspects - Presence of Nixiwaka
+    "numeric", # ceremonial setting aspects - Presence of Putanny
+    "numeric", # ceremonial setting aspects - Rituals and prayers (e.g., group healing, smudging, tobacco offerings)
+    "numeric", # ceremonial setting aspects - Group setting (versus individual/alone)
+    "numeric", # ceremonial setting aspects - Music (e.g., ícaros, drumming)
+    "numeric", # ceremonial setting aspects - Physical environment (e.g., nature, ceremonial room)
+    "numeric", # ceremonial setting aspects - Sharing circle insights
+    "numeric", # ceremonial setting aspects - Immediate neighbor(s)
+    "numeric", # ceremony enhanced ayahuasca
+    "numeric", # In my opinion, similar effects could be achieved without a ceremonial setting.
+    "text", # ceremonial setting one word
+    "numeric", # connectedness - I feel emotionally connected to the natural world.
+    "numeric", # connectedness - I view humans as separate from nature.
+    "numeric", # connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).
+    "numeric", # connectedness - I feel a sense of awe and wonder when in nature.
+    "numeric", # connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).
+    "numeric", # connectedness - I feel a strong spiritual bond with the Earth and its living beings.
+    "numeric", # connectedness - I feel connected to others.
+    "numeric", # connectedness - I feel disconnected from others.
+    "numeric", # connectedness - I feel like I belong.
+    "numeric", # connectedness - I feel understood by others.
+    "numeric", # connectedness - I feel connected to my community.
+    "text", # connection definition
+    "skip", # IMPORTANT: Before clicking Submit… Participant ID: [Field-…]
+    "skip", # Score
+    "text" # Participant ID
+  ),
+  skip = 1
+) %>%
+  mutate(
+    timepoint = "Follow-up"
+  ) %>%
+  rename(
+    pid_auto = "Participant ID",
+    pid_manual = "What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text",
+    fu_conn_def = "connection definition",
+    fu_recorded_date = `Recorded Date`,
+    fu_response_id = `Response ID`,
+    `fu_nsc_1 - I feel emotionally connected to the natural world.` =
+      "connectedness - I feel emotionally connected to the natural world.",
+    `fu_nsc_2 - I view humans as separate from nature.` =
+      "connectedness - I view humans as separate from nature.",
+    `fu_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+      "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
+    `fu_nsc_4 - I feel a sense of awe and wonder when in nature.` =
+      "connectedness - I feel a sense of awe and wonder when in nature.",
+    `fu_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+      "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
+    `fu_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
+      "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
+    `fu_nsc_7 - I feel connected to others.` =
+      "connectedness - I feel connected to others.",
+    `fu_nsc_8 - I feel disconnected from others.` =
+      "connectedness - I feel disconnected from others.",
+    `fu_nsc_9 - I feel like I belong.` =
+      "connectedness - I feel like I belong.",
+    `fu_nsc_10 - I feel understood by others.` =
+      "connectedness - I feel understood by others.",
+    `fu_nsc_11 - I feel connected to my community.` =
+      "connectedness - I feel connected to my community.",
+    fu_setting_Presence_Shaman = `ceremonial setting aspects - Presence of Nixiwaka`,
+    fu_setting_Presence_Putany = `ceremonial setting aspects - Presence of Putanny`,
+    fu_setting_Rituals_Prayers = `ceremonial setting aspects - Rituals and prayers (e.g., group healing, smudging, tobacco offerings)`,
+    fu_setting_Group_Setting = `ceremonial setting aspects - Group setting (versus individual/alone)`,
+    fu_setting_Music = `ceremonial setting aspects - Music (e.g., ícaros, drumming)`,
+    fu_setting_Physical_Environment = `ceremonial setting aspects - Physical environment (e.g., nature, ceremonial room)`,
+    fu_setting_Sharing_Circle = `ceremonial setting aspects - Sharing circle insights`,
+    fu_setting_Immediate_Neighbors = `ceremonial setting aspects - Immediate neighbor(s)`
+  ) %>%
+  relocate(c(pid_auto, pid_manual, fu_response_id), .before = 1) %>%
+  filter(Finished != 0) %>%
+  select(-Finished)
+
+# ---- One-month Import and Clean ---- ----
+
+omo <- read_excel("~/Documents/Akasha/one-month 6-30-2025.xlsx",
+  col_types = c(
+    "skip", # Start Date
+    "skip", # End Date
+    "skip", # Response Type
+    "skip", # IP Address
+    "skip", # Progress
+    "skip", # Duration (in seconds)
+    "numeric", # Finished
+    "date", # Recorded Date
+    "text", # Response ID
+    "skip", # Recipient Last Name
+    "skip", # Recipient First Name
+    "skip", # Recipient Email
+    "skip", # External Data Reference
+    "skip", # Location Latitude
+    "skip", # Location Longitude
+    "skip", # Distribution Channel
+    "skip", # User Language
+    "skip", # consent
+    "skip", # What is the Participant ID you were given at the end of your first questionnaire? - Selected Choice
+    "text", # What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text
+    "skip", # age
+    "skip", # gender - Selected Choice
+    "skip", # gender - Not listed - Text
+    "skip", # Text (country of origin)
+    "skip", # Text (country of residence)
+    "skip", # education
+    "skip", # language - Selected Choice
+    "skip", # language - Not listed - Text
+    "skip", # Text (any other language)
+    "skip", # practices - Selected Choice
+    "skip", # practices - Not listed (please specify) - Text
+    "numeric", # overall feeling - Relaxed and at peace
+    "numeric", # overall feeling - Connected to myself
+    "numeric", # overall feeling - Connected to others
+    "numeric", # overall feeling - Emotionally balanced
+    "numeric", # overall feeling - Insightful about my life or challenges
+    "numeric", # overall feeling - Confused and disoriented
+    "text", # greatest emotion
+    "numeric", # connectedness - I feel emotionally connected to the natural world.
+    "numeric", # connectedness - I view humans as separate from nature.
+    "numeric", # connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).
+    "numeric", # connectedness - I feel a sense of awe and wonder when in nature.
+    "numeric", # connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).
+    "numeric", # connectedness - I feel a strong spiritual bond with the Earth and its living beings.
+    "numeric", # connectedness - I feel connected to others.
+    "numeric", # connectedness - I feel disconnected from others.
+    "numeric", # connectedness - I feel like I belong.
+    "numeric", # connectedness - I feel understood by others.
+    "numeric", # connectedness - I feel connected to my community.
+    "numeric", # baseline wellbeing - I have felt calm and at peace.
+    "numeric", # baseline wellbeing - I have felt irritable or easily frustrated.
+    "numeric", # baseline wellbeing - I have experienced feelings of loneliness.
+    "numeric", # baseline wellbeing - I have felt down, depressed, or hopeless.
+    "numeric", # baseline wellbeing - I have felt anxious or "on edge".
+    "numeric", # baseline wellbeing - I have experienced physical pain or discomfort.
+    "numeric", # baseline wellbeing - I have had difficulty concentrating or focusing.
+    "numeric", # baseline wellbeing - I have had difficulty sleeping.
+    "numeric", # baseline wellbeing - I have found it easy to make decisions.
+    "numeric", # baseline wellbeing - I have felt motivated to accomplish daily tasks.
+    "numeric", # baseline wellbeing - I have felt a sense of purpose or meaning in life.
+    "numeric", # baseline wellbeing - I have experienced moments of awe or transcendence.
+    "numeric", # baseline wellbeing - I have been overall satisfied with my life.
+    "numeric", # baseline wellbeing - I have felt supported by my social network.
+    "numeric", # baseline wellbeing - I have experienced conflict or tension in my relationships.
+    "skip", # IMPORTANT: Before clicking Submit… Participant ID: [Field-…]
+    "skip", # Score
+    "text" # Participant ID
+  ),
+  skip = 1
+) %>%
+  mutate(
+    timepoint = "1-Month"
+  ) %>%
+  rename(
+    pid_auto = "Participant ID",
+    pid_manual = "What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text",
+    omo_response_id = `Response ID`,
+    omo_recorded_date = `Recorded Date`,
+    `omo_nsc_1 - I feel emotionally connected to the natural world.` =
+      "connectedness - I feel emotionally connected to the natural world.",
+    `omo_nsc_2 - I view humans as separate from nature.` =
+      "connectedness - I view humans as separate from nature.",
+    `omo_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+      "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
+    `omo_nsc_4 - I feel a sense of awe and wonder when in nature.` =
+      "connectedness - I feel a sense of awe and wonder when in nature.",
+    `omo_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+      "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
+    `omo_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
+      "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
+    `omo_nsc_7 - I feel connected to others.` =
+      "connectedness - I feel connected to others.",
+    `omo_nsc_8 - I feel disconnected from others.` =
+      "connectedness - I feel disconnected from others.",
+    `omo_nsc_9 - I feel like I belong.` =
+      "connectedness - I feel like I belong.",
+    `omo_nsc_10 - I feel understood by others.` =
+      "connectedness - I feel understood by others.",
+    `omo_nsc_11 - I feel connected to my community.` =
+      "connectedness - I feel connected to my community.",
+    `omo_wb_1 - I have felt calm and at peace.` =
+      "baseline wellbeing - I have felt calm and at peace.",
+    `omo_wb_2 - I have felt irritable or easily frustrated.` =
+      "baseline wellbeing - I have felt irritable or easily frustrated.",
+    `omo_wb_3 - I have experienced feelings of loneliness.` =
+      "baseline wellbeing - I have experienced feelings of loneliness.",
+    `omo_wb_4 - I have felt down, depressed, or hopeless.` =
+      "baseline wellbeing - I have felt down, depressed, or hopeless.",
+    `omo_wb_5 - I have felt anxious or \"on edge\".` =
+      "baseline wellbeing - I have felt anxious or \"on edge\".",
+    `omo_wb_6 - I have experienced physical pain or discomfort.` =
+      "baseline wellbeing - I have experienced physical pain or discomfort.",
+    `omo_wb_7 - I have had difficulty concentrating or focusing.` =
+      "baseline wellbeing - I have had difficulty concentrating or focusing.",
+    `omo_wb_8 - I have had difficulty sleeping.` =
+      "baseline wellbeing - I have had difficulty sleeping.",
+    `omo_wb_9 - I have found it easy to make decisions.` =
+      "baseline wellbeing - I have found it easy to make decisions.",
+    `omo_wb_10 - I have felt motivated to accomplish daily tasks.` =
+      "baseline wellbeing - I have felt motivated to accomplish daily tasks.",
+    `omo_wb_11 - I have felt a sense of purpose or meaning in life.` =
+      "baseline wellbeing - I have felt a sense of purpose or meaning in life.",
+    `omo_wb_12 - I have experienced moments of awe or transcendence.` =
+      "baseline wellbeing - I have experienced moments of awe or transcendence.",
+    `omo_wb_13 - I have been overall satisfied with my life.` =
+      "baseline wellbeing - I have been overall satisfied with my life.",
+    `omo_wb_14 - I have felt supported by my social network.` =
+      "baseline wellbeing - I have felt supported by my social network.",
+    `omo_wb_15 - I have experienced conflict or tension in my relationships.` =
+      "baseline wellbeing - I have experienced conflict or tension in my relationships."
+  ) %>%
+  relocate(c(pid_auto, pid_manual, omo_response_id), .before = 1) %>%
+  filter(Finished != 0) %>%
+  select(-Finished)
+
+# ---- pid coalescing before merge ---- ----
+
+fu <- fu %>%
+  mutate(
+    pid_auto   = sub("\\.0$", "", pid_auto),
+    pid_manual = sub("\\.0$", "", pid_manual),
+    pid = coalesce(pid_manual, pid_auto)
+  ) %>%
+  relocate(c(pid_auto, pid_manual, pid, fu_response_id), .before = 1)
+
+omo <- omo %>%
+  mutate(
+    pid_auto   = sub("\\.0$", "", pid_auto),
+    pid_manual = sub("\\.0$", "", pid_manual),
+    pid = coalesce(pid_manual, pid_auto)
+  ) %>%
+  relocate(c(pid_auto, pid_manual, pid, omo_response_id), .before = 1)
+
+# ---- Manual matching ---- ----
+
+# fu, manually matched one person, two will be dropped for not completing baseline. one was fixed, a typo
+fu <- fu %>%
+  mutate(
+    pid = case_when(
+      fu_response_id == "R_6e3J8ppiX1jtPs2" ~ "418328", # demographic match to baseline
+      pid_manual == "566132" ~ "565132", # typo assumed to be same person because of retreat
+      TRUE ~ pid
+    )
+  ) %>%
+  select(-pid_auto, -pid_manual)
+
+# omo, manually matched 3 ppl and will drop one for not completing baseline
+omo <- omo %>%
+  mutate(
+    pid = case_when(
+      omo_response_id == "R_3sTqbmgs0GDHhA0" ~ "391644", # demographic match to baseline
+      omo_response_id == "R_407wj0qqBiCHFbI" ~ "774750", # demographic match to baseline
+      omo_response_id == "R_8IKuKnBB3V9ZQm1" ~ "495946", # demographic match to baseline
+      TRUE ~ pid
+    )
+  ) %>%
+  select(-pid_auto, -pid_manual)
 ```
 
-```{r drop and clean, include=FALSE}
-# Define additional columns to drop from baseline_v
-# ----------------------------
-cols_to_drop <- cols_to_drop %>% c(
-  "PRE1.1 - consent",
-  "PRE1.10 - retreat - Selected Choice",
-  "PRE1.10_4_TEXT - retreat - Not displayed - Text"
+```{r audit for completion, eval=FALSE, include=FALSE}
+# Who’s in Follow-up but not Baseline?
+lost_fu <- fu2 %>% 
+  anti_join(basev2, by = "pid")
+
+# Who’s in One-Month but not Baseline?
+lost_omo <- omo2 %>%
+  anti_join(basev2, by = "pid")
+
+# Combine
+lost <- bind_rows(
+  lost_fu  %>% mutate(Source = "Follow-up"),
+  lost_omo %>% mutate(Source = "One-month")
 )
 
-# ----------------------------
-# 1. Clean and reshape `basetxt` so that we only carry forward
-#    the specific “_txt” or long fields we need
-# ----------------------------
+# View the offending rows
+lost %>% 
+  select(pid, Source) %>% 
+  distinct()
+```
 
-basetxt_for_join <- basetxt %>%
-  select(
-    `Response ID`,
-    `PRE1.2 - age`,
-    `PRE1.3 - gender - Selected Choice`,
-    `PRE1.4_1 - Text`, # country of origin
-    `PRE1.5_1 - Text`, # country of residence
-    `PRE1.6 - education`,
-    `PRE1.7 - language - Selected Choice`,
-    `PRE1.7_8_TEXT - language - Not listed - Text`,
-    `PRE1.8_1 - Text`, # religion or faith
-    `PRE3.2 - previous ayahuasca`,
-    `UserLanguage - User Language`,
-    `PRE1.10 - retreat - Selected Choice`,
-    `PRE4.2 - connection definition`,
-    `PRE1.10 - retreat - Selected Choice`,
-    `LocationLatitude - Location Latitude`,
-    `LocationLongitude - Location Longitude`
-  )
+```{r merges, include=FALSE}
+# Join the baselines
 
-# ----------------------------
-# 2. Build `base_clean` in one pipeline
-# ----------------------------
 base_clean <- basev %>%
-  # 2a. Keep only those who finished
-  filter(Finished != 0) %>%
-  # 2b. Rename Participant ID → pid
-  rename(pid = `Participant ID`) %>%
-  # 2c. Left-join the small `basetxt_for_join` by “Response ID”
   left_join(
-    basetxt_for_join,
-    by     = "Response ID",
+    basetxt,
+    by     = c("bl_response_id" = "Response ID"),
     suffix = c("", "_txt")
   ) %>%
-  # 2d. Drop the columns in cols_to_drop for base_v
-  select(-all_of(cols_to_drop)) %>%
-  # 2e. Rename vars
-  rename(
-    LAT = `LocationLatitude - Location Latitude`,
-    LON = `LocationLongitude - Location Longitude`,
-    Age = `PRE1.2 - age_txt`,
-    Gender = `PRE1.3 - gender - Selected Choice_txt`,
-    CountryOrigin = `PRE1.4_1 - Text_txt`,
-    CountryResidence = `PRE1.5_1 - Text_txt`,
-    HighestEducation = `PRE1.6 - education_txt`,
-    Religion = `PRE1.8_1 - Text_txt`,
-    PastAyahuasca = `PRE3.2 - previous ayahuasca_txt`,
-    baseline_DefnofConnection = `PRE4.2 - connection definition_txt`,
-    BrowserLanguage = `UserLanguage - User Language_txt`,
-    Retreat = `PRE1.10 - retreat - Selected Choice_txt`
-  ) %>%
-  # 2f. Coalesce demographic and baseline fields:
-  mutate(
+  relocate(
+    
+  # 1) IDs and timing
+  pid,
+  bl_response_id,
+  bl_recorded_date,
+  retreat,
+  timepoint,
+  
+  # 2) Demographics
+  age,
+  gender,
+  education,
+  language,
+  country_origin,
+  country_residence,
+  religion,
+  
+  
+  # 4) Baseline experiences & intentions
+  prev_ayahuasca,
+  practices,
+  intention,
+  intent_mental,
+  intent_physical,
+  intent_other,
+  bl_conn_def,
+  
+  .before = everything()
+)
+
+```
+
+```{r old cleaning}
+mutate(
     # PrimaryLanguage: if “Not listed,” use the accompanying text; otherwise, keep the choice
     PrimaryLanguage = case_when(
       as.character(`PRE1.7 - language - Selected Choice`) == "Not listed" &
@@ -237,7 +690,7 @@ base_clean <- base_clean %>%
   mutate(
     Retreat = factor(
       Retreat,
-      levels = c("Ninawa", "COLIBRI", "Tumã", "Nixiwaka")
+      levels = c("Ninawa", "Colibri", "Tumã", "Nixiwaka")
     ),
     Gender = factor(Gender),
     HighestEducation = factor(
@@ -283,15 +736,25 @@ base_clean <- base_clean %>%
     # Age remains numeric in base_clean
   )
 
+base_clean <- base_clean %>%
+  mutate(
+    spiritual_intent = ifelse(Intention == "Spiritual growth", 1, 0),
+    experience_group = fct_collapse(
+      PastAyahuasca,
+      Low  = c("Never", "One time", "2–5 times"),
+      High = c("6–10 times", "More than 10 times")
+    )
+  )
+
 # 8. FULL JOIN the merged base_merged with fu_clean and omo_clean by pid
-alldata <- base_clean %>%
+all_data <- base_clean %>%
   full_join(fu_clean, by = "pid", suffix = c("", ".fu")) %>%
   full_join(omo_clean, by = "pid", suffix = c("", ".omo"))
 
-
-# Preferred for HTML output
-library(sysfonts)
-library(showtext)
+  all_data %>%
+    filter(is.na(Age) & is.na(fu_setting_Music)) %>%
+    pull(pid) %>%
+    unique()
 
 font_add_google("Lato", "lato")
 showtext_auto()
@@ -321,13 +784,15 @@ Participants completed the *Baseline* questionnaire electronically via Qualtrics
 
 The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were offered in both **English and Portuguese**.
 
-Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* questionnaires. Measures of **nature and social connectedness** appeared in all three questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
+Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* questionnaires. A section measuring **nature and social connectedness** appeared in all three questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
 
 All items used 5-point Likert scales (e.g., from "Strongly disagree" to "Strongly agree" or "Not at all important" to "Extremely important"). Within each section, items were presented in randomized order. Upon completing the *Baseline* questionnaire, participants were assigned an anonymous Participant ID for longitudinal tracking.
 
-Immediately after the retreat, participants received the *Follow-up* questionnaire, which captured immediate effects and reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**—including the presence of shamans, music, group rituals, and physical setting—on a 5-point scale. Open-ended prompts invited them to share **notable moments** and the **primary emotion** they experienced post-retreat.
+Immediately after the 3-ceremony retreat, participants received the *Follow-up* questionnaire, which captured immediate reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**, including the presence of shamans, music, group rituals, and physical setting, on a 5-point Likert scale. Open-ended prompts invited participants to share **notable moments** and the **primary emotion** they experienced post-retreat.
 
 Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier questionnaires to allow for longtitudinal comparisons.
+
+Data analysis and presentation of results were completed using RStudio Version 2025.05.0+496 in June – July 2025.
 
 We gratefully acknowledge the generous support and collaboration of the **Guardians and support staff of Aldeia Akasha ([homepage](https://uniretreats.org/akasha-retreat-center/))**, without whose openness, cooperation, and hospitality this pilot study would not have been possible.
 
@@ -339,7 +804,7 @@ We gratefully acknowledge the generous support and collaboration of the **Guardi
 
 **Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire.
 
-**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Education was high**: over half had a bachelor's (30.2%) or master's (25.4%) degree. The sample was **internationally diverse; most originated from Brazil (30.2%)**, followed by the United Kingdom (19.0%), and United States (17.5%).
+**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: over half had a bachelor's or master's degree (30.2% and 25.4%, respectively). The sample was **internationally diverse, with the largest groups originating from Brazil (30.2%)**, the United Kingdom (19.0%), and United States (17.5%).
 
 **Ceremony intentions were led by spiritual growth (50.8%)**, followed by mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **over a third (36.5%) had taken ayahuasca 10+ times** while **one-fifth (20.6%) were first-timers**.
 
@@ -378,8 +843,6 @@ table1(
   data = base_clean,
   overall = "Total"
 )
-
-cat('</div>')
 
 ```
 
@@ -698,17 +1161,7 @@ ggplot(intention_freq, aes(
 ```
 
 ```{r spiritual intention testing, echo=FALSE}
-base_clean <- base_clean %>%
-  mutate(
-    spiritual_intent = ifelse(Intention == "Spiritual growth", 1, 0),
-    PastAya_bin = fct_collapse(
-      PastAyahuasca,
-      Low  = c("Never", "One time", "2–5 times"),
-      High = c("6–10 times", "More than 10 times")
-    )
-  )
-
-tbl <- table(base_clean$PastAya_bin,
+tbl <- table(base_clean$experience_group,
               base_clean$spiritual_intent)
 
 fisher.test(tbl, alternative = "two.sided")
@@ -766,11 +1219,11 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
 
 ### Table 4: Mixed Models on Nature and Social Connectedness
 
-Table 4 summarizes paired comparisons between *Baseline* and both subsqequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
+Table 4 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
 
 Statistically significant improvements (*p* \< .05) were found primarily in items related to social connectedness. One month after their retreats, participants reported large **reductions in feelings of disconnection from others** (**β = -1.03**, *p* \< .001\*\*\*), in addition to increases in their feeling of **being understood by others** (**β = -1.04**, *p* \<.001\*\*\*) and **sense of belonging** (**β = -0.67**, *p* \< .01\*\*). Participants also reported moderate increases in their **sense of connection to others** (**β = -0.47**, *p* \< .014\*) and to their community (**β = -0.58**, *p* \< .01\*\*). Many of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
-In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” (*β* = -0.27, *p* \< .01\*\*)) which showed a slight but significant improvement, indicating that participants experienced enhanced attentiveness to subtle aspects of the natural world one month after the retreat.
+In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” (**β = -0.27**, *p* \< .01\*\*)) which showed a slight but significant improvement, indicating that participants experienced enhanced attentiveness to subtle aspects of the natural world one month after the retreat.
 
 Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting an appreciation of the small details of nature.
 
@@ -849,16 +1302,17 @@ k <- kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
+
 # font-size rearrangement loop
 for (i in seq_len(ncol(slim_results_nat))) {
-  k <- k %>% column_spec(i, extra_css = "font-size: 0.95em;")
+  k <- k %>% column_spec(i, extra_css = "font-size: 15px;")
 }
 
 k
 ```
 
 ```{r violintest, eval=FALSE, include=FALSE}
-ggplot(alldata, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
+ggplot(all_data, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
         geom_violin() +
         labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
 ```
@@ -991,6 +1445,153 @@ kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
+```
+
+## Ceremonial Setting
+
+In the *Follow-up* questionnaire, participants were asked to reflect on the ceremonial contexts of their ayahuasca ceremonies. This section aimed to assess the perceived importance of various environmental and social elements within the ceremony. Participants rated eight aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important." These items were designed to capture how components of the setting may have contributed to participants’ subjective experience.
+
+### Which aspects of the ceremony were most important to participants?
+
+According to *Chart 3*, participants rated **Music highest** (more than 90% “Strongly Agree”), followed by **Physical environment** and **Shaman presence** (both around 80% “Strongly Agree/Agree”). **Rituals & prayers** and **Group setting** also skew positively.
+
+By contrast, **Sharing circle** and especially **Immediate neighbors** had broader spreads. Only about half “Strongly Agree,” with larger "Neutral" and "Disagree" slices. The immediate proximity of other participants elicited the most neutral responses, with nearly half of participants selecting Neutral or below.
+
+#### Chart 3: Distribution of Responses for Ceremonial Setting Section
+
+```{r ceremonial setting clean, echo=FALSE, fig.align='left', fig.width=10}
+# 1. Pivot all your ceremony aspects (including both shaman vars) long
+ceremonies_long <- fu_clean %>%
+  select(
+    pid,
+    fu_setting_Presence_Shaman,
+    fu_setting_Presence_Putany,
+    fu_setting_Music,
+    fu_setting_Rituals_Prayers,
+    fu_setting_Group_Setting,
+    fu_setting_Physical_Environment,
+    fu_setting_Sharing_Circle,
+    fu_setting_Immediate_Neighbors
+  ) %>%
+  pivot_longer(
+    cols      = -pid,
+    names_to  = "Raw_Aspect",
+    values_to = "Rating"
+  ) %>%
+  filter(!is.na(Rating)) %>%
+  mutate(
+    Aspect = case_when(
+      Raw_Aspect %in% c("fu_setting_Presence_Shaman", "fu_setting_Presence_Putany") ~ "Shaman presence",
+      Raw_Aspect == "fu_setting_Music" ~ "Music",
+      Raw_Aspect == "fu_setting_Rituals_Prayers" ~ "Rituals & prayers",
+      Raw_Aspect == "fu_setting_Group_Setting" ~ "Group setting",
+      Raw_Aspect == "fu_setting_Physical_Environment" ~ "Physical environment",
+      Raw_Aspect == "fu_setting_Sharing_Circle" ~ "Sharing circle",
+      Raw_Aspect == "fu_setting_Immediate_Neighbors" ~ "Immediate neighbors",
+      TRUE ~ Raw_Aspect
+    ),
+    Rating = factor(
+      Rating,
+      levels = 1:5,
+      labels = c(
+        "Not at all important",
+        "Slightly important",
+        "Moderately important",
+        "Very important",
+        "Extremely important"
+      ),
+      ordered = TRUE
+    )
+  )
+
+# 1) Compute proportions
+ceremony_prop <- ceremonies_long %>%
+  count(Aspect, Rating) %>%
+  group_by(Aspect) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup()
+
+# 2) Compute the descending‐mean order on ceremonies_long
+mean_order <- ceremonies_long %>%
+  mutate(R_num = as.numeric(Rating)) %>%
+  group_by(Aspect) %>%
+  summarize(mean_rating = mean(R_num, na.rm = TRUE)) %>%
+  arrange(mean_rating) %>%
+  pull(Aspect)
+
+# 3) Apply that ordering to **ceremony_prop** before plotting
+ceremony_prop <- ceremony_prop %>%
+  mutate(Aspect = factor(Aspect, levels = mean_order))
+
+# 4) Plot
+ggplot(ceremony_prop, aes(x = Aspect, y = prop, fill = Rating)) +
+  geom_col(color = NA) +
+  coord_flip() +
+  scale_y_continuous(labels = percent_format()) +
+  scale_fill_manual(
+    name = "Importance",
+    values = c(
+      "Not at all important" = "#EFF3FF", # lightest
+      "Slightly important"   = "#BDD7E7",
+      "Moderately important" = "#6BAED6",
+      "Very important"       = "#3182BD",
+      "Extremely important"  = "#08519C" # darkest
+    ),
+    breaks = c(
+      "Extremely important",
+      "Very important",
+      "Neutral",
+      "Slightly important",
+      "Not at all important"
+    )
+  ) +
+  labs(x = NULL, y = "Percent of responses") +
+  theme_minimal(base_size = 18)
+ceremonies_long <- ceremonies_long %>%
+  mutate(
+    Importance = case_when(
+      Rating %in% c("Not at all important", "Slightly important") ~ "Less important",
+      Rating == "Moderately important" ~ "Moderately important",
+      Rating %in% c("Very important", "Extremely important") ~ "Important"
+    ),
+    Importance = factor(Importance,
+      levels = c("Less important", "Moderately important", "Important"),
+      ordered = TRUE
+    )
+  )
+
+# 2) Compute proportions per Aspect × Rating
+heatmap_df <- ceremonies_long %>%
+  mutate(Aspect = factor(Aspect, levels = mean_order)) %>%
+  count(Aspect, Importance) %>%
+  group_by(Aspect) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup()
+
+# 3) Plot as a tile‐grid with text annotations
+ggplot(heatmap_df, aes(x = Importance, y = Aspect, fill = prop)) +
+  geom_tile(color = "white", linewidth = 0.2) +
+  geom_text(aes(label = percent(prop, accuracy = 0.1)), size = 6) +
+  scale_fill_gradient(low = "white", high = "#c76cd1", labels = percent_format(accuracy = 1)) +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Percent\nof responses"
+  ) +
+  theme_minimal(base_size = 18) +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "none"
+  )
+
+ceremonies_long %>%
+  group_by(Aspect) %>%
+  summarize(mean_rating = mean(as.numeric(Rating))) %>%
+  arrange(desc(mean_rating))
+
+# ggplot(ceremonies_long, aes(Rating, fill = Rating)) +
+#   geom_bar() +
+#   facet_wrap(~ExperienceGroup) 
 ```
 
 ```{r beep, message=FALSE, warning=FALSE, include=FALSE}
