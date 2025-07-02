@@ -19,6 +19,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# ---- Libraries ----
 library(dplyr)
 library(tidyr)
 library(table1)
@@ -41,6 +42,16 @@ library(purrr)
 library(readxl)
 library(sysfonts)
 library(showtext)
+
+# ---- Set universal fonts ----
+font_add_google("Lato", "lato")
+showtext_auto()
+
+# Set Lato as the default ggplot2 font
+theme_set(theme_minimal(base_family = "lato"))
+update_geom_defaults("text",   list(family = "lato"))
+update_geom_defaults("label",  list(family = "lato"))
+update_geom_defaults("point",  list(family = "lato"))
 
 # ---- Basev Import and Clean ----
 basev <- read_excel(
@@ -153,12 +164,12 @@ basev <- read_excel(
       "connectedness - I feel connected to my community."
   ) %>%
   mutate(
-    bl_recorded_date = as.Date(bl_recorded_date),
+    bl_recorded_date_r = as.Date(bl_recorded_date),
     retreat = case_when(
-      bl_recorded_date <= as.Date("2025-02-07") ~ "Ninawa",
-      bl_recorded_date <= as.Date("2025-02-14") ~ "Colibri",
-      bl_recorded_date <= as.Date("2025-03-02") ~ "Tumã",
-      bl_recorded_date <= as.Date("2025-04-25") ~ "Nixiwaka",
+      bl_recorded_date_r <= as.Date("2025-02-07") ~ "Ninawa",
+      bl_recorded_date_r <= as.Date("2025-02-14") ~ "Colibri Festival",
+      bl_recorded_date_r <= as.Date("2025-03-02") ~ "Tumã",
+      bl_recorded_date_r <= as.Date("2025-04-25") ~ "Nixiwaka",
       TRUE ~ NA_character_
     )
   ) %>%
@@ -167,7 +178,7 @@ basev <- read_excel(
     timepoint = "Baseline"
   ) %>%
   relocate(c(pid, bl_response_id, retreat), .before = 1) %>%
-  select(-Finished)
+  select(-Finished, -bl_recorded_date_r)
 
 # ---- Basetxt Import and Clean ----
 basetxt <- read_excel(
@@ -322,9 +333,20 @@ fu <- read_excel(
   rename(
     pid_auto = "Participant ID",
     pid_manual = "What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text",
-    fu_conn_def = "connection definition",
+    fu_conn_def_txt = "connection definition",
     fu_recorded_date = `Recorded Date`,
     fu_response_id = `Response ID`,
+    fu_ceremony_enhanced_ayahuasca = `ceremony enhanced ayahuasca`,
+    fu_ceremonial_setting_one_word_txt = `ceremonial setting one word`,
+    fu_of_1_relaxed_and_at_peace = `after ceremony feeling - Relaxed and at peace`,
+    fu_of_2_connected_to_self = `after ceremony feeling - Connected to myself`,
+    fu_of_3_connected_to_others = `after ceremony feeling - Connected to others`,
+    fu_of_4_emotionally_balanced = `after ceremony feeling - Emotionally balanced`,
+    fu_of_5_insightful = `after ceremony feeling - Insightful about my life or challenges`,
+    fu_of_6_confused = `after ceremony feeling - Confused and disoriented`,
+    fu_similar_effects = `In my opinion, similar effects could be achieved without a ceremonial setting.`,
+    fu_helpful_aspects_txt = `helpful aspects of ceremony`,
+    fu_greatest_emotion_txt = `greatest emotion`,
     `fu_nsc_1 - I feel emotionally connected to the natural world.` =
       "connectedness - I feel emotionally connected to the natural world.",
     `fu_nsc_2 - I view humans as separate from nature.` =
@@ -356,7 +378,7 @@ fu <- read_excel(
     fu_setting_Sharing_Circle = `ceremonial setting aspects - Sharing circle insights`,
     fu_setting_Immediate_Neighbors = `ceremonial setting aspects - Immediate neighbor(s)`
   ) %>%
-  relocate(c(pid_auto, pid_manual, fu_response_id), .before = 1) %>%
+  relocate(c(pid_auto, pid_manual, fu_response_id, fu_recorded_date, timepoint), .before = 1) %>%
   filter(Finished != 0) %>%
   select(-Finished)
 
@@ -442,6 +464,13 @@ omo <- read_excel("~/Documents/Akasha/one-month 6-30-2025.xlsx",
     pid_manual = "What is the Participant ID you were given at the end of your first questionnaire? - My Participant ID is... - Text",
     omo_response_id = `Response ID`,
     omo_recorded_date = `Recorded Date`,
+    omo_greatest_emotion_txt = `greatest emotion`,
+    omo_of_1_relaxed_and_at_peace = `overall feeling - Relaxed and at peace`,
+    omo_of_2_connected_to_self = `overall feeling - Connected to myself`,
+    omo_of_3_connected_to_others = `overall feeling - Connected to others`,
+    omo_of_4_emotionally_balanced = `overall feeling - Emotionally balanced`,
+    omo_of_5_insightful = `overall feeling - Insightful about my life or challenges`,
+    omo_of_6_confused = `overall feeling - Confused and disoriented`,
     `omo_nsc_1 - I feel emotionally connected to the natural world.` =
       "connectedness - I feel emotionally connected to the natural world.",
     `omo_nsc_2 - I view humans as separate from nature.` =
@@ -495,7 +524,7 @@ omo <- read_excel("~/Documents/Akasha/one-month 6-30-2025.xlsx",
     `omo_wb_15 - I have experienced conflict or tension in my relationships.` =
       "baseline wellbeing - I have experienced conflict or tension in my relationships."
   ) %>%
-  relocate(c(pid_auto, pid_manual, omo_response_id), .before = 1) %>%
+  relocate(c(pid_auto, pid_manual, omo_response_id, omo_recorded_date, timepoint), .before = 1) %>%
   filter(Finished != 0) %>%
   select(-Finished)
 
@@ -519,12 +548,16 @@ omo <- omo %>%
 
 # ---- Manual matching ---- ----
 
-# fu, manually matched one person, two will be dropped for not completing baseline. one was fixed, a typo
+# remove Michèle's test submission from baseline
+basev <- basev %>%
+  filter(bl_response_id != "R_6teomARAyFf1gge")
+
+# fu, originally 46. manually matched one person, manually fixed another with a typo, one is dropped for not completing baseline.
 fu <- fu %>%
-  mutate(
+  mutate( 
     pid = case_when(
       fu_response_id == "R_6e3J8ppiX1jtPs2" ~ "418328", # demographic match to baseline
-      pid_manual == "566132" ~ "565132", # typo assumed to be same person because of retreat
+      pid_manual == "566132" ~ "565132", # typo assumed to be same person because of retreat and only off by one number
       TRUE ~ pid
     )
   ) %>%
@@ -545,12 +578,12 @@ omo <- omo %>%
 
 ```{r audit for completion, eval=FALSE, include=FALSE}
 # Who’s in Follow-up but not Baseline?
-lost_fu <- fu2 %>% 
-  anti_join(basev2, by = "pid")
+lost_fu <- fu %>% 
+  anti_join(basev, by = "pid")
 
 # Who’s in One-Month but not Baseline?
-lost_omo <- omo2 %>%
-  anti_join(basev2, by = "pid")
+lost_omo <- omo %>%
+  anti_join(basev, by = "pid")
 
 # Combine
 lost <- bind_rows(
@@ -564,10 +597,10 @@ lost %>%
   distinct()
 ```
 
-```{r merges, include=FALSE}
+```{r baseline merge, include=FALSE}
 # Join the baselines
 
-base_clean <- basev %>%
+baseline <- basev %>%
   left_join(
     basetxt,
     by     = c("bl_response_id" = "Response ID"),
@@ -603,98 +636,40 @@ base_clean <- basev %>%
   
   .before = everything()
 )
-
 ```
 
-```{r old cleaning}
-mutate(
-    # PrimaryLanguage: if “Not listed,” use the accompanying text; otherwise, keep the choice
-    PrimaryLanguage = case_when(
-      as.character(`PRE1.7 - language - Selected Choice`) == "Not listed" &
-        !is.na(`PRE1.7_8_TEXT - language - Not listed - Text`)
-      ~ as.character(`PRE1.7_8_TEXT - language - Not listed - Text`),
-      TRUE ~ as.character(`PRE1.7 - language - Selected Choice`)
-    ),
+```{r demographics factoring, include=FALSE}
 
-    # Intention: if “Not listed,” wrap the text field in “Other (...)”
-    Intention = case_when(
-      as.character(`PRE3.3 - intention - Selected Choice`) == "Not listed" &
-        !is.na(`PRE3.3_5_TEXT - intention - Not listed - Text`)
-      ~ paste0(
-          "Other (",
-          as.character(`PRE3.3_5_TEXT - intention - Not listed - Text`),
-          ")"
-        ),
-      TRUE ~ as.character(`PRE3.3 - intention - Selected Choice`)
-    ),
-
-    # Standardize Country of Origin
-    CountryOrigin = case_when(
-      CountryOrigin %in% c("Brasil", "Brazil") ~ "Brazil",
-      CountryOrigin %in% c("United States", "United States of America", "USA") ~ "United States",
-      CountryOrigin %in% c("Britain", "England") ~ "United Kingdom",
-      CountryOrigin == "México" ~ "Mexico",
-      CountryOrigin == "France and Lebanon" ~ "France",
-      TRUE ~ CountryOrigin
-    ),
-
-    # Standardize Country of Residence
-    CountryResidence = case_when(
-      CountryResidence %in% c("Brasil", "Brazil") ~ "Brazil",
-      CountryResidence %in% c("United States", "United States of America", "USA") ~ "United States",
-      CountryResidence %in% c("Britain", "England", "Wales", "UK/India") ~ "United Kingdom",
-      TRUE ~ CountryResidence
-    )
-  ) %>%
-  # 2h. Drop all of the original long‐named baseline columns we’ve now renamed
-  select(
-    -`PRE1.7 - language - Selected Choice`,
-    -`PRE1.7_8_TEXT - language - Not listed - Text`,
-    -`PRE3.3 - intention - Selected Choice`,
-    -`PRE3.3_5_TEXT - intention - Not listed - Text`,
-    -`Finished`,
-    -`LocationLatitude - Location Latitude_txt`,
-    -`LocationLongitude - Location Longitude_txt`,
-    -`PRE1.2 - age`,
-    -`PRE1.3 - gender - Selected Choice`,
-    -`PRE1.4_1 - Text`,
-    -`PRE1.5_1 - Text`,
-    -`PRE1.6 - education`,
-    -`PRE1.8_1 - Text`,
-    -`PRE3.2 - previous ayahuasca`,
-    -`PRE4.2 - connection definition`,
-    -`UserLanguage - User Language`
-  )
-
-base_clean <- base_clean %>%
-  select(
-    Timepoint,
-    Age,
-    Gender,
-    Intention,
-    CountryOrigin,
-    CountryResidence,
-    HighestEducation,
-    PrimaryLanguage,
-    Religion,
-    PastAyahuasca,
-    BrowserLanguage,
-    Retreat,
-    baseline_DefnofConnection,
-    LAT,
-    LON,
-    everything()
-  )
-
-base_clean <- base_clean %>%
+baseline <- baseline %>%
   mutate(
-    Retreat = factor(
-      Retreat,
-      levels = c("Ninawa", "Colibri", "Tumã", "Nixiwaka")
+    # Standardize Country of Origin
+    country_origin = case_when(
+      country_origin %in% c("Brasil", "Brazil")                                ~ "Brazil",
+      country_origin %in% c("United States", "United States of America", "USA")~ "United States",
+      country_origin %in% c("Britain", "England")                              ~ "United Kingdom",
+      country_origin == "México"                                               ~ "Mexico",
+      country_origin == "France and Lebanon"                                   ~ "France",
+      TRUE                                                                      ~ country_origin
     ),
-    Gender = factor(Gender),
-    HighestEducation = factor(
-      HighestEducation,
+    
+    # Standardize Country of Residence
+    country_residence = case_when(
+      country_residence %in% c("Brasil", "Brazil")                             ~ "Brazil",
+      country_residence %in% c("United States", "United States of America", "USA") ~ "United States",
+      country_residence %in% c("Britain", "England", "Wales", "UK/India")      ~ "United Kingdom",
+      TRUE                                                                      ~ country_residence
+    ),
+
+    # Retreats in chronological order
+    retreat = factor(
+      retreat,
+      levels = c("Ninawa", "Colibri Festival", "Tumã", "Nixiwaka")
+    ),
+    
+    gender = factor(gender),
+
+    education = factor(
+      education,
       levels = c(
         "Primary (Elementary)",
         "Upper Secondary (High)",
@@ -705,25 +680,18 @@ base_clean <- base_clean %>%
       ),
       ordered = TRUE
     ),
-    CountryOrigin = fct_infreq(CountryOrigin),
-    CountryResidence = fct_infreq(CountryResidence),
-    Intention = factor(
-      Intention,
-      levels = c(1, 2, 3, 4, 5, 6, 8),
-      labels = c(
-        "Mental health",
-        "Spiritual growth",
-        "Physical health",
-        "Curiosity",
-        "Other",
-        "Career",
-        "I don't know"
-      )
-    ),
-    Intention = fct_infreq(Intention),
-    Intention = fct_drop(Intention),
-    PastAyahuasca = factor(
-      PastAyahuasca,
+
+    # reorder & drop unused country levels
+    country_origin    = fct_infreq(country_origin),
+    country_residence = fct_infreq(country_residence),
+
+    # reorder & drop unused intention levels
+    intention = fct_infreq(intention),
+    intention = fct_drop(intention),
+
+    # Past ayahuasca experience (renamed prev_ayahuasca)
+    prev_ayahuasca = factor(
+      prev_ayahuasca,
       levels = c(
         "Never",
         "One time",
@@ -732,39 +700,29 @@ base_clean <- base_clean %>%
         "More than 10 times"
       ),
       ordered = TRUE
-    )
-    # Age remains numeric in base_clean
-  )
+    ),
+  
+    # binary flag for spiritual intent
+    spiritual_intent = if_else(intention == "Spiritual growth", 1L, 0L),
 
-base_clean <- base_clean %>%
-  mutate(
-    spiritual_intent = ifelse(Intention == "Spiritual growth", 1, 0),
+    # high vs low group on ayahuasca experience
     experience_group = fct_collapse(
-      PastAyahuasca,
+      prev_ayahuasca,
       Low  = c("Never", "One time", "2–5 times"),
       High = c("6–10 times", "More than 10 times")
     )
   )
+```
 
-# 8. FULL JOIN the merged base_merged with fu_clean and omo_clean by pid
-all_data <- base_clean %>%
-  full_join(fu_clean, by = "pid", suffix = c("", ".fu")) %>%
-  full_join(omo_clean, by = "pid", suffix = c("", ".omo"))
+``` {r all_wide join, include=FALSE}
+colnames(baseline)
+colnames(fu)
+colnames(omo)
 
-  all_data %>%
-    filter(is.na(Age) & is.na(fu_setting_Music)) %>%
-    pull(pid) %>%
-    unique()
-
-font_add_google("Lato", "lato")
-showtext_auto()
-
-# Set Lato as the default ggplot2 font
-theme_set(theme_minimal(base_family = "lato"))
-update_geom_defaults("text",   list(family = "lato"))
-update_geom_defaults("label",  list(family = "lato"))
-update_geom_defaults("point",  list(family = "lato"))
-
+all_wide <- baseline %>%
+  left_join(fu, by = "pid", suffix = c("", ".fu")) %>%
+  left_join(omo, by = "pid", suffix = c("", ".omo")) %>%
+  select(-c(timepoint.omo, timepoint.fu))
 ```
 
 ```{=html}
@@ -802,45 +760,45 @@ We gratefully acknowledge the generous support and collaboration of the **Guardi
 
 ### Table 1: Baseline Participant Characteristics by Retreat
 
-**Table 1** (below) reports demographic characteristics for the **63 participants** who completed the first *(Baseline)* questionnaire.
+**Table 1** (below) reports demographic characteristics for the **62 participants** who completed the first *(Baseline)* questionnaire.
 
-**Most participants were women (58.7%)** with an **average age of 42 years** (SD = 9.06, range 24–62). **Educational attainment was high**: over half had a bachelor's or master's degree (30.2% and 25.4%, respectively). The sample was **internationally diverse, with the largest groups originating from Brazil (30.2%)**, the United Kingdom (19.0%), and United States (17.5%).
+**Most participants were women (58.1%)** with an **average age of 42 years** (SD = 9.05, range 24–62). **Educational attainment was high**: over half had a bachelor's or master's degree (30.6% and 25.8%, respectively). The sample was **internationally diverse, with the largest groups originating from Brazil (30.6%)**, the United Kingdom (17.7%), and United States (16.1%).
 
-**Ceremony intentions were led by spiritual growth (50.8%)**, followed by mental health (19.0%), and career (14.3%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **over a third (36.5%) had taken ayahuasca 10+ times** while **one-fifth (20.6%) were first-timers**.
+**Ceremony intentions were led by spiritual growth (50.0%)**, followed by mental health (19.4%), and career (14.5%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **over a third (35.5%) had taken ayahuasca 10+ times** while **one-fifth (17.7%) were first-timers**.
 
 ```{r table1, echo=FALSE}
 ## Table1 only from baseline retreat with matched participants
 
-table1_selection <- base_clean %>%
+table1_selection <- baseline %>%
   select(
-    Retreat,
-    Gender,
-    Age,
-    PastAyahuasca,
-    Intention,
-    HighestEducation,
-    CountryOrigin,
-    CountryResidence
+    retreat,
+    gender,
+    age,
+    prev_ayahuasca,       # was PastAyahuasca
+    intention,
+    education,            # was HighestEducation
+    country_origin,
+    country_residence
   )
 
 # Attach “label” attributes:
-label(base_clean$Gender) <- "Gender"
-label(base_clean$HighestEducation) <- "Highest education level"
-label(base_clean$CountryOrigin) <- "Country of origin"
-label(base_clean$CountryResidence) <- "Country of residence"
-label(base_clean$Intention) <- "Ceremony intention"
-label(base_clean$PastAyahuasca) <- "Times taken ayahuasca"
-label(base_clean$Age) <- "Age (years)"
+label(baseline$gender)            <- "Gender"
+label(baseline$education)         <- "Highest education level"
+label(baseline$country_origin)    <- "Country of origin"
+label(baseline$country_residence) <- "Country of residence"
+label(baseline$intention)         <- "Ceremony intention"
+label(baseline$prev_ayahuasca)    <- "Times taken ayahuasca"
+label(baseline$age)               <- "Age (years)"
 
 table1(
-  ~ Gender
-  + Age
-    + HighestEducation
-    + PastAyahuasca
-    + Intention
-    + CountryOrigin
-    + CountryResidence | Retreat,
-  data = base_clean,
+  ~ gender
+  + age
+  + education
+  + prev_ayahuasca
+  + intention
+  + country_origin
+  + country_residence  | retreat,
+  data    = baseline,
   overall = "Total"
 )
 
@@ -850,59 +808,55 @@ table1(
 
 *Displaying only participants with IDs matched to baseline*
 
-**Twenty-four (24) participants completed all three questionnaires,** out of **63 total participants** who enrolled in the pilot**. Overall retention was thus 38%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 50% retention. *Follow-up* questionnaire retention averaged 68% overall, ranging from 36% for COLIBRI to 84% for Nixiwaka.
+**Twenty-four (24) participants completed all three questionnaires,** out of **62 total participants** who enrolled in the pilot**. Overall retention was thus 39%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 52% retention. *Follow-up* questionnaire retention averaged 73% overall, ranging from 43% for COLIBRI to 89% for Nixiwaka.
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
-ordered_levels <- c("Ninawa", "COLIBRI", "Tumã", "Nixiwaka", "Total")
+ordered_levels <- c("Ninawa", "Colibri Festival", "Tumã", "Nixiwaka", "Total")
 
 # 2) Compute raw counts
-table2 <- base_clean %>%
-  group_by(Retreat) %>%
+table2 <- baseline %>%
+  group_by(retreat) %>%
   summarize(
     N_baseline = n_distinct(pid),
-    N_fu = sum(pid %in% fu_clean$pid),
-    N_omo = sum(pid %in% omo_clean$pid),
-    .groups = "drop"
+    N_fu       = sum(pid %in% fu$pid),
+    N_omo      = sum(pid %in% omo$pid),
+    .groups    = "drop"
   )
 
 # 3) Totals
 total_baseline <- sum(table2$N_baseline)
-total_fu <- sum(table2$N_fu)
-total_omo <- sum(table2$N_omo)
+total_fu       <- sum(table2$N_fu)
+total_omo      <- sum(table2$N_omo)
 
 # 4) Build display rows for non-Total
 display <- table2 %>%
-  filter(Retreat != "Total") %>%
+  filter(retreat != "Total") %>%
   mutate(
-    Baseline = as.character(N_baseline),
+    Baseline  = as.character(N_baseline),
     `Follow-up` = sprintf(
       "%d (%d%%)", N_fu,
       round(100 * N_fu / N_baseline)
     ),
-    `1-Mo` = sprintf(
+    `1-Mo`    = sprintf(
       "%d (%d%%)", N_omo,
       round(100 * N_omo / N_baseline)
     )
   ) %>%
-  select(Retreat, Baseline, `Follow-up`, `1-Mo`)
-
-total_baseline <- sum(table2$N_baseline)
-total_fu <- sum(table2$N_fu)
-total_omo <- sum(table2$N_omo)
+  select(retreat, Baseline, `Follow-up`, `1-Mo`)
 
 # 5) Append Total row with counts only
 display <- bind_rows(
   display,
   tibble(
-    Retreat = "Total",
-    Baseline = as.character(total_baseline),
-    `Follow-up` = sprintf(
+    retreat      = "Total",
+    Baseline     = as.character(total_baseline),
+    `Follow-up`  = sprintf(
       "%d (%d%%)",
       total_fu,
       round(100 * total_fu / total_baseline)
     ),
-    `1-Mo` = sprintf(
+    `1-Mo`       = sprintf(
       "%d (%d%%)",
       total_omo,
       round(100 * total_omo / total_baseline)
@@ -912,12 +866,17 @@ display <- bind_rows(
 
 # 6) Order and render
 display %>%
-  mutate(Retreat = factor(Retreat, levels = ordered_levels)) %>%
-  arrange(Retreat) %>%
+  mutate(retreat = factor(retreat, levels = ordered_levels)) %>%
+  arrange(retreat) %>%
   kable(
     format    = "html",
     align     = c("l", "r", "r", "r"),
-    col.names = c("Retreat", "Baseline (n, %)", "Follow-up (n, % retention)", "1-Mo (n, % retention)")
+    col.names = c(
+      "Retreat",
+      "Baseline (n, %)",
+      "Follow-up (n, % retention)",
+      "1-Mo (n, % retention)"
+    )
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "condensed"),
@@ -925,45 +884,43 @@ display %>%
     position          = "left"
   ) %>%
   row_spec(nrow(display), bold = TRUE)
+
 ```
 
 ```{r prep timepoint comparison, echo=FALSE}
-# 1) bind all three, but keep the raw question name
+# 1) Bind all three waves with new prefixes (nsc_ and wb_)
 all_raw <- bind_rows(
-  base_clean %>% mutate(Timepoint = "Baseline") %>%
+  baseline %>%
+    mutate(timepoint = "Baseline") %>%
     select(
-      pid,
-      Retreat,
-      Timepoint,
-      PastAyahuasca,
-      Intention,
-      starts_with("PRE_")
+      pid, retreat, timepoint, prev_ayahuasca, intention,
+      starts_with("bl_nsc_"), starts_with("bl_wb_")
     ),
-  fu_clean %>% mutate(Timepoint = "Follow-up") %>% select(
-    pid,
-    Retreat,
-    Timepoint,
-    starts_with("FU_")
-  ),
-  omo_clean %>% mutate(Timepoint = "One-month") %>% select(
-    pid,
-    Retreat,
-    Timepoint,
-    starts_with("OMO_")
-  )
+  fu %>%
+    mutate(timepoint = "Follow-up") %>%
+    select(
+      pid, timepoint,
+      starts_with("fu_nsc_"), starts_with("fu_wb_")
+    ),
+  omo %>%
+    mutate(timepoint = "One-month") %>%
+    select(
+      pid, timepoint,
+      starts_with("omo_nsc_"), starts_with("omo_wb_")
+    )
 )
 
-# 2) pivot long
+# 2) Pivot long
 all_long <- all_raw %>%
   pivot_longer(
-    cols      = -c(pid, Timepoint, Retreat, PastAyahuasca, Intention),
-    names_to  = "Question_raw",
-    values_to = "Response"
+    cols      = -c(pid, timepoint, retreat, prev_ayahuasca, intention),
+    names_to  = "question_raw",
+    values_to = "response"
   )
 
-# 3) split into NATSC vs wellbeing
-all_nat <- all_long %>% filter(str_detect(Question_raw, "_NATSC_"))
-all_wellbeing <- all_long %>% filter(str_detect(Question_raw, "_BASELINE_"))
+# 3) Split NATSC vs wellbeing by prefix
+all_nat        <- all_long %>% filter(str_detect(question_raw, "^.*_nsc_"))
+all_wellbeing  <- all_long %>% filter(str_detect(question_raw, "^.*_wb_"))
 
 
 # define which questions to invert
@@ -982,60 +939,57 @@ inv_wb <- c(
   "I have had difficulty sleeping."
 )
 
-# 4) clean the label (drops both prefix & domain, leaves only the text)
+# 5) Clean NATSC
 cleaned_nat <- all_nat %>%
   mutate(
-    Question = str_remove(Question_raw, "^.* - "),
+    Question = str_remove(question_raw, "^.*_nsc_\\d+\\s*-\\s*"),
     Question = recode(
       Question,
       "I notice and appreciate the small details of nature (e.g., plants, animals, weather)." =
         "I notice and appreciate the small details of nature."
     ),
-    # now invert
-    Response = if_else(Question %in% inv_nat, 6L - Response, Response),
-    Question = if_else(Question %in% inv_nat,
+    # invert where needed
+    response = if_else(Question %in% inv_nat, 6L - response, response),
+    Question = if_else(
+      Question %in% inv_nat,
       str_c(Question, " (inv.)"),
       Question
     )
-  )
-
-cleaned_nat_complete <- cleaned_nat %>%
-  filter(!is.na(Response)) %>%
+  ) %>%
+  filter(!is.na(response)) %>%
   group_by(pid) %>%
-  filter(n_distinct(Timepoint) == 3) %>%
+  filter(n_distinct(timepoint) == 3) %>%
   ungroup()
 
+# 6) Clean wellbeing
 cleaned_wb <- all_wellbeing %>%
   mutate(
-    Question = str_remove(Question_raw, "^.* - "),
-    Response = if_else(Question %in% inv_wb, 6L - Response, Response),
+    Question = question_raw %>%
+      str_remove("^.*_wb_") %>%            # drop everything through "_wb_"
+      str_remove("^\\d+\\s*-\\s*"),        # drop leading "1 - " (or "2 - ", etc)
+    response = if_else(Question %in% inv_wb, 6L - response, response),
     Question = if_else(Question %in% inv_wb,
       str_c(Question, " (inv.)"),
       Question
     )
   )
 
-cleaned_all <- all_long %>%
-  mutate(
-    Question = str_remove(Question_raw, "^.* - "),
-    needs_inv = Question %in% c(inv_nat, inv_wb),
-    Response = if_else(needs_inv, 6L - Response, Response),
-    Question = if_else(needs_inv,
-      str_c(Question, " (inv.)"),
-      Question
-    )
-  ) %>%
-  select(-needs_inv)
+# Commented this out because it isn't used anywhere
+# # 7) Full cleaned for combined use
+# cleaned_all <- bind_rows(
+#   cleaned_nat   %>% select(pid, retreat, timepoint, Question, response),
+#   cleaned_wb    %>% select(pid, retreat, timepoint, Question, response)
+# )
 
-# 2) Summarize means by Question × Timepoint
+# 8) Summaries
 summary_nat <- cleaned_nat %>%
-  group_by(Question, Timepoint) %>%
-  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop")
+  group_by(Question, timepoint) %>%
+  summarize(mean_response = mean(response, na.rm = TRUE), .groups = "drop")
 
 summary_wb <- cleaned_wb %>%
-  group_by(Question, Timepoint) %>%
-  summarize(mean_response = mean(Response, na.rm = TRUE), .groups = "drop") %>%
-  filter(Timepoint != "Follow-up")
+  group_by(Question, timepoint) %>%
+  summarize(mean_response = mean(response, na.rm = TRUE), .groups = "drop") %>%
+  filter(timepoint != "Follow-up")
 ```
 
 ### Who's Taken Ayahuasca Before, and Why?
@@ -1312,7 +1266,7 @@ k
 ```
 
 ```{r violintest, eval=FALSE, include=FALSE}
-ggplot(all_data, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
+ggplot(all_wide, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
         geom_violin() +
         labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
 ```
