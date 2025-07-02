@@ -1,7 +1,7 @@
 ---
-title: "Aldeia Akasha: Ayahuasca, Wellbeing, and Connectedness"
-output: 
-  html_document: 
+title: 'Aldeia Akasha: Ayahuasca, Wellbeing, and Connectedness'
+output:
+  html_document:
     toc: true
     css: "akasha-styles.css"
     self_contained: true
@@ -12,8 +12,11 @@ output:
     toc_depth: 4
   md_document:
     preserve_yaml: false
+  pdf_document:
+    toc: true
+    toc_depth: '4'
 always_allow_html: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -714,7 +717,7 @@ baseline <- baseline %>%
   )
 ```
 
-``` {r all_wide join, include=FALSE}
+```{r all_wide join, include=FALSE}
 colnames(baseline)
 colnames(fu)
 colnames(omo)
@@ -736,19 +739,19 @@ all_wide <- baseline %>%
 
 # Methods
 
-This pilot study administered **three (3) questionnaires (*Baseline*, *Follow-up*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
+This pilot study administered **three (3) Questionnaires (*Baseline*, *Follow-up*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
 
 Participants completed the *Baseline* questionnaire electronically via Qualtrics at the start of the retreat, **prior to the first ceremony.** Informed consent was obtained through an affirmative response to the consent item included at the beginning of the first questionnaire. Due to its small scale and programmatic nature, the study did not undergo formal IRB review.
 
-The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were offered in both **English and Portuguese**.
+The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education Question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and Questionnaires were offered in both **English and Portuguese**.
 
-Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* questionnaires. A section measuring **nature and social connectedness** appeared in all three questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
+Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* Questionnaires. A section measuring **nature and social connectedness** appeared in all three Questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
 
 All items used 5-point Likert scales (e.g., from "Strongly disagree" to "Strongly agree" or "Not at all important" to "Extremely important"). Within each section, items were presented in randomized order. Upon completing the *Baseline* questionnaire, participants were assigned an anonymous Participant ID for longitudinal tracking.
 
 Immediately after the 3-ceremony retreat, participants received the *Follow-up* questionnaire, which captured immediate reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**, including the presence of shamans, music, group rituals, and physical setting, on a 5-point Likert scale. Open-ended prompts invited participants to share **notable moments** and the **primary emotion** they experienced post-retreat.
 
-Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier questionnaires to allow for longtitudinal comparisons.
+Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier Questionnaires to allow for longtitudinal comparisons.
 
 Data analysis and presentation of results were completed using RStudio Version 2025.05.0+496 in June – July 2025.
 
@@ -808,7 +811,7 @@ table1(
 
 *Displaying only participants with IDs matched to baseline*
 
-**Twenty-four (24) participants completed all three questionnaires,** out of **62 total participants** who enrolled in the pilot**. Overall retention was thus 39%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 52% retention. *Follow-up* questionnaire retention averaged 73% overall, ranging from 43% for COLIBRI to 89% for Nixiwaka.
+**Twenty-four (24) participants completed all three Questionnaires,** out of **62 total participants** who enrolled in the pilot**. Overall retention was thus 39%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 52% retention. *Follow-up* questionnaire retention averaged 73% overall, ranging from 43% for COLIBRI to 89% for Nixiwaka.
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
@@ -914,16 +917,16 @@ all_raw <- bind_rows(
 all_long <- all_raw %>%
   pivot_longer(
     cols      = -c(pid, timepoint, retreat, prev_ayahuasca, intention),
-    names_to  = "question_raw",
+    names_to  = "Question_raw",
     values_to = "response"
   )
 
 # 3) Split NATSC vs wellbeing by prefix
-all_nat        <- all_long %>% filter(str_detect(question_raw, "^.*_nsc_"))
-all_wellbeing  <- all_long %>% filter(str_detect(question_raw, "^.*_wb_"))
+all_nat        <- all_long %>% filter(str_detect(Question_raw, "^.*_nsc_"))
+all_wellbeing  <- all_long %>% filter(str_detect(Question_raw, "^.*_wb_"))
 
 
-# define which questions to invert
+# define which Questions to invert
 inv_nat <- c(
   "I view humans as separate from nature.",
   "I feel disconnected from others."
@@ -942,7 +945,7 @@ inv_wb <- c(
 # 5) Clean NATSC
 cleaned_nat <- all_nat %>%
   mutate(
-    Question = str_remove(question_raw, "^.*_nsc_\\d+\\s*-\\s*"),
+    Question = str_remove(Question_raw, "^.*_nsc_\\d+\\s*-\\s*"),
     Question = recode(
       Question,
       "I notice and appreciate the small details of nature (e.g., plants, animals, weather)." =
@@ -955,16 +958,12 @@ cleaned_nat <- all_nat %>%
       str_c(Question, " (inv.)"),
       Question
     )
-  ) %>%
-  filter(!is.na(response)) %>%
-  group_by(pid) %>%
-  filter(n_distinct(timepoint) == 3) %>%
-  ungroup()
+  )
 
 # 6) Clean wellbeing
 cleaned_wb <- all_wellbeing %>%
   mutate(
-    Question = question_raw %>%
+    Question = Question_raw %>%
       str_remove("^.*_wb_") %>%            # drop everything through "_wb_"
       str_remove("^\\d+\\s*-\\s*"),        # drop leading "1 - " (or "2 - ", etc)
     response = if_else(Question %in% inv_wb, 6L - response, response),
@@ -1000,93 +999,98 @@ Chart 1 displays the frequency of prior ayahuasca experience among participants 
 
 ```{r ayahuasca frequency, echo=FALSE, fig.align='left', fig.width=10}
 
-freq <- base_clean %>%
-  count(PastAyahuasca) %>%
-  arrange(match(PastAyahuasca,
+freq <- baseline %>%
+  count(prev_ayahuasca) %>%
+  arrange(match(prev_ayahuasca,
     c("Never","One time","2–5 times","6–10 times","More than 10 times")
   )) %>%
   mutate(
     pct = n / sum(n),
-    label = paste0(n, " (", scales::percent(pct, 1), ")"),
-    PastAyahuasca = factor(
-      PastAyahuasca,
+    label = paste0(n, " (", scales::percent(pct, accuracy = 1), ")"),
+    prev_ayahuasca = factor(
+      prev_ayahuasca,
       levels = rev(
         c("Never","One time","2–5 times","6–10 times","More than 10 times")
       )
     )
   )
 
-ggplot(freq, aes(x = PastAyahuasca, y = n)) +
-  geom_col(fill = "#A8D5BA", width=0.7) +
+ggplot(freq, aes(x = prev_ayahuasca, y = n)) +
+  geom_col(fill = "#A8D5BA", width = 0.7) +
   geom_text(
-  aes(label = label),
-  hjust = -0.1,
-  color = "black",
-  size = 4
+    aes(label = label),
+    hjust = -0.1,
+    color = "black",
+    size = 4
   ) +
   scale_y_continuous(expand = expansion(c(0, .1))) +
   coord_flip() +
   labs(
-    x     = "# Participants",
-    y     = "Times Taken Ayahuasca"
+    x = "# Participants",
+    y = "Times Taken Ayahuasca"
   ) +
   theme_minimal(base_size = 14) +
   theme(
-    panel.grid.minor = element_blank(),
-    panel.grid.major.y = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
-    axis.text = element_text(size = 12))
+    panel.grid.minor     = element_blank(),
+    panel.grid.major.y   = element_blank(),
+    axis.text.x          = element_blank(),
+    axis.ticks.x         = element_blank(),
+    plot.title           = element_text(face = "bold", size = 16, hjust = 0.5),
+    axis.text            = element_text(size = 12)
+  )
 ```
 
 #### Chart 2: Why are Participants Taking Ayahuasca?
 
-**Spiritual growth** was the most common intention across nearly all experience levels. It dominated especially among participants with more ayahuasca experience, making up **56%** of intentions among those who had taken it 6–10 times and **70%** among those with 10+ experiences. **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, in the "2–5 times" group, **mental health** was the leading intention, suggesting that participants newer to ayahuasca may engage with it initially for psychological reasons before shifting toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
+**Spiritual growth** was the most common intention across nearly all experience levels. It dominated especially among participants with more ayahuasca experience, making up **56%** of intentions among those who had taken it 6–10 times and **68%** among those with 10+ experiences. **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, in the "2–5 times" group, **mental health** was the leading intention (57%), suggesting that participants newer to ayahuasca may engage with it initially for psychological reasons before shifting toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
 
 ```{r ayahuasca-by-intention, echo=FALSE, fig.align='left'}
 
 # Prepare counts + proportions
-intention_freq <- base_clean %>%
-  count(PastAyahuasca, Intention) %>%
-  group_by(PastAyahuasca) %>%
+intention_freq <- baseline %>%
+  count(prev_ayahuasca, intention) %>%
+  group_by(prev_ayahuasca) %>%
   mutate(
     prop = n / sum(n),
     text = paste0(
-      "Experience: ", PastAyahuasca, "<br>",
-      "Intention:  ", Intention, "<br>",
-      "Count:      ", n, "<br>",
+      "Experience: ", prev_ayahuasca, "<br>",
+      "Intention:  ", intention,      "<br>",
+      "Count:      ", n,              "<br>",
       "Percent:    ", scales::percent(prop, 1)
     )
   ) %>%
   ungroup() %>%
   mutate(
-    PastAyahuasca = factor(
-      PastAyahuasca,
+    prev_ayahuasca = factor(
+      prev_ayahuasca,
       levels = c("Never","One time","2–5 times","6–10 times","More than 10 times")
     )
   )
 
 ggplot(intention_freq, aes(
-  x = PastAyahuasca,
-  y = prop,
-  fill = Intention
+  x    = prev_ayahuasca,
+  y    = prop,
+  fill = intention
 )) +
   geom_col(color = "white", position = "fill", width = 0.7) +
   geom_text(
-    aes(label = ifelse(prop >= 0.08, scales::percent(prop, accuracy = 1), "")),
+    aes(label = ifelse(prop >= 0.08, scales::percent(prop, 1), "")),
     position = position_fill(vjust = 0.5),
-    color = "black",
-    size = 3.5
+    color    = "black",
+    size     = 3.5
   ) +
-  scale_y_continuous(labels = scales::percent_format(), expand = expansion(0)) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    expand = expansion(0)
+  ) +
   scale_fill_brewer(palette = "Set2") +
   coord_flip() +
   labs(
     x     = "Times Taken Ayahuasca",
     y     = "Proportion of Intentions",
     fill  = "Ceremony Intention",
-    title = "Intentions by Prior Ayahuasca Experience"
+    title = "Intentions by Prior Ayahuasca Experience at Baseline",
+    caption = expression(italic(n) == 62)
   ) +
   theme_light(base_size = 13) +
   theme(
@@ -1095,33 +1099,36 @@ ggplot(intention_freq, aes(
     legend.position  = "bottom"
   )
 
-# graveyard of tested charts
-# ggplot(intention_freq, aes(x = PastAyahuasca, y = prop, fill = Intention)) +
-# geom_col(width = 0.7, color = "white") + facet_wrap(~ Intention, ncol = 2) +
-# scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand =
-# expansion(0)) + scale_fill_brewer(palette = "Set2", guide = "none") + labs( x
-# = "Prior Ayahuasca Experience", y     = "Proportion of Respondents", title =
-# "Proportion of Each Intention by Prior Ayahuasca Experience" ) +
-# theme_light(base_size = 13) + theme( panel.grid.minor = element_blank(),
-# axis.text.x      = element_text(angle = 30, hjust = 1) )
+# graveyard of tested charts (collapsed via RStudio's **Join Lines** feature: Ctrl+Shift+J)
+# ggplot(intention_freq, aes(x = prev_ayahuasca, y = prop, fill = intention)) +
+#   geom_col(width = 0.7, color = "white") + facet_wrap(~ intention, ncol = 2) +
+#   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = expansion(0)) +
+#   scale_fill_brewer(palette = "Set2", guide = "none") +
+#   labs(x = "Prior Ayahuasca Experience", y = "Proportion of Respondents",
+#        title = "Proportion of Each Intention by Prior Ayahuasca Experience") +
+#   theme_light(base_size = 13) +
+#   theme(panel.grid.minor    = element_blank(),
+#         axis.text.x         = element_text(angle = 30, hjust = 1))
 #
-# ggplot(intention_freq, aes(x = Intention, y = PastAyahuasca, fill = prop)) +
-# geom_tile(color = "white") + geom_text(aes(label = scales::percent(prop,
-# accuracy = 1)), color = "black", size = 3.5) + scale_fill_viridis_c(option =
-# "D", direction = -1) + labs( x = "Ceremony Intention", y = "Prior Ayahuasca
-# Experience", fill = "Proportion", title = "Distribution of Intentions by Prior
-# Ayahuasca Experience" ) + theme_light(base_size = 13) + theme( panel.grid =
-# element_blank(), axis.text.x = element_text(angle = 30, hjust = 1) )
+# ggplot(intention_freq, aes(x = intention, y = prev_ayahuasca, fill = prop)) +
+#   geom_tile(color = "white") +
+#   geom_text(aes(label = scales::percent(prop, accuracy = 1)), color = "black", size = 3.5) +
+#   scale_fill_viridis_c(option = "D", direction = -1) +
+#   labs(x = "Ceremony Intention", y = "Prior Ayahuasca Experience",
+#        fill = "Proportion", title = "Distribution of Intentions by Prior Ayahuasca Experience") +
+#   theme_light(base_size = 13) +
+#   theme(panel.grid          = element_blank(),
+#         axis.text.x        = element_text(angle = 30, hjust = 1))
 ```
 
 ```{r spiritual intention testing, echo=FALSE}
-tbl <- table(base_clean$experience_group,
-              base_clean$spiritual_intent)
+tbl <- table(baseline$experience_group,
+             baseline$spiritual_intent)
 
 fisher.test(tbl, alternative = "two.sided")
 ```
 
-Indeed, participants with high ayahuasca experience (6 previous ceremonies or more) had significantly greater odds of reporting spiritual-growth intent compared to those with low experience. A Fisher’s Exact Test indicated that the odds of choosing spiritual intent were **3.4 times higher** in the high-experience group than in the low-experience group (odds ratio = 3.40, 95% CI: 1.10 to 11.14, *p* = 0.0237). Because the confidence interval does not include 1, this suggests a statistically significant association between past ayahuasca use and reported spiritual motivation. While the wide confidence interval reflects the limited data in this pilot, these results provide evidence of an association worth further study.
+Indeed, participants with high ayahuasca experience (6 previous ceremonies or more, *n* = 31) had significantly greater odds of reporting spiritual-growth intent compared to those with low experience. A Fisher’s Exact Test indicated that the odds of choosing spiritual intent were **3.2 times higher** in the high-experience group than in the low-experience group (odds ratio = 3.24, 95% CI: 1.04 to 10.67, *p* = 0.041\*). Because the confidence interval does not include 1, this suggests a statistically significant association between past ayahuasca use and reported spiritual motivation. While the wide confidence interval reflects the limited data in this pilot, these results provide evidence of an association worth further study.
 
 ## Nature & Social Connectedness
 
@@ -1135,25 +1142,27 @@ Mean response on each **Nature and Social Connectedness** section at three timep
 labeltextsize <- 6
 
 ### nat
-ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
+ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
   geom_line(color = "gray40") +
-  geom_point(aes(color = Timepoint), size = 3) +
+  geom_point(aes(color = timepoint), size = 3) +
   geom_text(
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
     vjust = 2.0,
     size = labeltextsize
   ) +
-  facet_wrap(~Question,
-    nrow = 2, scales = "fixed",
+  facet_wrap(
+    ~ Question,
+    nrow   = 2,
+    scales = "fixed",
     labeller = label_wrap_gen(width = 20)
   ) +
   scale_y_continuous(limits = c(1, 5), breaks = 1:5) +
   scale_color_manual(
     values = c(
-      "Baseline"   = "#ace3a6",
-      "Follow-up"  = "#2eb51f",
-      "One-month"  = "#116b07"
+      "Baseline"  = "#ace3a6",
+      "Follow-up" = "#2eb51f",
+      "One-month" = "#116b07"
     )
   ) +
   theme_minimal(base_size = 20) +
@@ -1169,31 +1178,32 @@ ggplot(summary_nat, aes(Timepoint, mean_response, group = 1)) +
     x = NULL,
     y = "Mean response (1–5)"
   )
+
 ```
 
 ### Table 4: Mixed Models on Nature and Social Connectedness
 
-Table 4 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
+Table 4 summarizes paired comparisons between *Baseline* and both subsequent Questionnaires (*Follow-up* and *One-month*) across 11 Questions on **Nature and Social connectedness**.
 
-Statistically significant improvements (*p* \< .05) were found primarily in items related to social connectedness. One month after their retreats, participants reported large **reductions in feelings of disconnection from others** (**β = -1.03**, *p* \< .001\*\*\*), in addition to increases in their feeling of **being understood by others** (**β = -1.04**, *p* \<.001\*\*\*) and **sense of belonging** (**β = -0.67**, *p* \< .01\*\*). Participants also reported moderate increases in their **sense of connection to others** (**β = -0.47**, *p* \< .014\*) and to their community (**β = -0.58**, *p* \< .01\*\*). Many of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
+Statistically significant improvements (*p* \< .05) were found primarily in items related to social connectedness. One month after their retreats, participants reported large **reductions in feelings of disconnection from others** (**β = -1.04**, *p* \< .001\*\*\*), in addition to increases in their feeling of **being understood by others** (**β = -1.01**, *p* \<.001\*\*\*) and **sense of belonging** (**β = -0.68**, *p* \< .01\*\*). Participants also reported moderate increases in their **sense of connection to others** (**β = -0.48**, *p* \< .011\*) and to their community (**β = -0.60**, *p* \< .01\*\*). Many of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
-In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” (**β = -0.27**, *p* \< .01\*\*)) which showed a slight but significant improvement, indicating that participants experienced enhanced attentiveness to subtle aspects of the natural world one month after the retreat.
+In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” (**β = -0.28**, *p* \< .01\*\*)) which showed a slight but significant improvement, indicating that participants experienced enhanced attentiveness to subtle aspects of the natural world one month after the retreat.
 
 Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting an appreciation of the small details of nature.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
-  # only keep pid/timepoint/question/response
-  select(pid, Timepoint, Question, Response) %>%
-  # for reproducibility, ensure Timepoint is a factor in the right order
-  mutate(Timepoint = factor(Timepoint, levels = c("Baseline", "Follow-up", "One-month"))) %>%
+  # only keep pid/timepoint/Question/response
+  select(pid, timepoint, Question, response) %>%
+  # for reproducibility, ensure timepoint is a factor in the right order
+  mutate(timepoint = factor(timepoint, levels = c("Baseline", "Follow-up", "One-month"))) %>%
   # nest by Question
   nest_by(Question) %>%
   mutate(
     # fit LMM
-    model = list(lmer(Response ~ Timepoint + (1 | pid), data = data, REML = FALSE)),
+    model = list(lmer(response ~ timepoint + (1 | pid), data = data, REML = FALSE)),
     # emmeans + pairwise contrasts
-    em = list(emmeans(model, ~Timepoint)),
+    em = list(emmeans(model, ~timepoint)),
     contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
   ) %>%
   # unnest the contrasts
@@ -1227,10 +1237,10 @@ slim_results_nat <- results_nat_complete %>%
       TRUE            ~ paste0(p_fmt, stars)
     ),
     Estimate_colored = case_when(
-  p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
-  p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
-  p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
-  TRUE            ~ sprintf("%.2f", Estimate))
+      p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
+      p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
+      p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
+      TRUE            ~ sprintf("%.2f", Estimate))
   ) %>%
   filter(contrast != "Follow-up to One-month") %>%
   select(
@@ -1265,26 +1275,20 @@ for (i in seq_len(ncol(slim_results_nat))) {
 k
 ```
 
-```{r violintest, eval=FALSE, include=FALSE}
-ggplot(all_wide, aes(x = factor(PastAyahuasca, y = Change_Anxiety)) +
-        geom_violin() +
-        labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
-```
-
 ## Recent Wellbeing
 
 [copy about this section]
 
 ### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
 
-Mean response on each **Recent Wellbeing** section at two timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree. Note that recent wellbeing questions were not asked at *Follow-up*, only at *Baseline* and *One-month*.
+Mean response on each **Recent Wellbeing** section at two timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree. Note that recent wellbeing Questions were not asked at *Follow-up*, only at *Baseline* and *One-month*.
 
 ```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=14}
 ## wellbeing
 
-ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
+ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
   geom_line(color = "gray40") +
-  geom_point(aes(color = Timepoint), size = 5) +
+  geom_point(aes(color = timepoint), size = 5) +
   geom_text(
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
@@ -1319,25 +1323,25 @@ ggplot(summary_wb, aes(Timepoint, mean_response, group = 1)) +
 
 ### Table 6: Mixed Models on Recent Wellbeing
 
-Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains from baseline to one month following the retreat. As shown in *Table 6*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (β = -0.59, p \< .001\*\*\*) and anxiety (β = -0.49, p \< .01\*\*), depression (β = -0.44, p \< .01\*\*), difficulty concentrating (β = -0.41, p \< .01\*\*), and irritability (β = -0.36, p = .033\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
+Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains from baseline to one month following the retreat. As shown in *Table 6*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (β = -0.59, p \< .001\*\*\*) and anxiety (β = -0.49, p \< .01\*\*), depression (β = -0.44, p \< .01\*\*), difficulty concentrating (β = -0.41, p \< .01\*\*), and irritability (β = -0.37, p = .032\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
 
-Positive shifts were also observed in life satisfaction (β = -0.49, p = .013\*), calmness and peace (β = -0.60, p \< .01\*\*), and ease making decisions (β = -0.51, p = .041\*). Participants also reported **more frequent experiences of awe or transcendence** (β = -0.80, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
+Positive shifts were also observed in life satisfaction (β = -0.49, p = .013\*), calmness and peace (β = -0.61, p \< .01\*\*), and ease making decisions (β = -0.50, p = .023\*). Participants also reported **more frequent experiences of awe or transcendence** (β = -0.80, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
 
 Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
 
 ```{r table: wellness lmm, echo=FALSE}
 results_wb_complete <- cleaned_wb %>%
-  # only keep pid/timepoint/question/response
-  select(pid, Timepoint, Question, Response) %>%
-  # for reproducibility, ensure Timepoint is a factor in the right order
-  mutate(Timepoint = factor(Timepoint, levels = c("Baseline", "One-month"))) %>%
+  # only keep pid/timepoint/Question/response
+  select(pid, timepoint, Question, response) %>%
+  # for reproducibility, ensure timepoint is a factor in the right order
+  mutate(timepoint = factor(timepoint, levels = c("Baseline", "One-month"))) %>%
   # nest by Question
   nest_by(Question) %>%
   mutate(
     # fit LMM
-    model = list(lmer(Response ~ Timepoint + (1 | pid), data = data, REML = FALSE)),
+    model = list(lmer(response ~ timepoint + (1 | pid), data = data, REML = FALSE)),
     # emmeans + pairwise contrasts
-    em = list(emmeans(model, ~Timepoint)),
+    em = list(emmeans(model, ~timepoint)),
     contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
   ) %>%
   # unnest the contrasts
@@ -1371,10 +1375,11 @@ slim_results_wb <- results_wb_complete %>%
       TRUE            ~ paste0(p_fmt, stars)
     ),
     Estimate_colored = case_when(
-  p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
-  p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
-  p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
-  TRUE            ~ sprintf("%.2f", Estimate))
+      p.value < 0.001 ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#5E4FA2", bold = TRUE),
+      p.value < 0.01  ~ cell_spec(sprintf("%.2f", Estimate), color = "white", background = "#3288BD", bold = TRUE),
+      p.value < 0.05  ~ cell_spec(sprintf("%.2f", Estimate), color = "black", background = "#ABDDA4"),
+      TRUE            ~ sprintf("%.2f", Estimate)
+    )
   ) %>%
   select(
     Question,
@@ -1399,6 +1404,7 @@ kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
+
 ```
 
 ## Ceremonial Setting
@@ -1407,15 +1413,14 @@ In the *Follow-up* questionnaire, participants were asked to reflect on the cere
 
 ### Which aspects of the ceremony were most important to participants?
 
-According to *Chart 3*, participants rated **Music highest** (more than 90% “Strongly Agree”), followed by **Physical environment** and **Shaman presence** (both around 80% “Strongly Agree/Agree”). **Rituals & prayers** and **Group setting** also skew positively.
+According to *Chart 3*, participants rated **Music highest** (more than 90% rated it "Extremely important"), followed by **Physical environment** and **Shaman presence** (around 88–95% “Strongly Agree/Agree”). **Rituals & prayers** and **Group setting** also skew positively.
 
 By contrast, **Sharing circle** and especially **Immediate neighbors** had broader spreads. Only about half “Strongly Agree,” with larger "Neutral" and "Disagree" slices. The immediate proximity of other participants elicited the most neutral responses, with nearly half of participants selecting Neutral or below.
 
 #### Chart 3: Distribution of Responses for Ceremonial Setting Section
-
 ```{r ceremonial setting clean, echo=FALSE, fig.align='left', fig.width=10}
 # 1. Pivot all your ceremony aspects (including both shaman vars) long
-ceremonies_long <- fu_clean %>%
+ceremonies_long <- fu %>%
   select(
     pid,
     fu_setting_Presence_Shaman,
@@ -1436,13 +1441,13 @@ ceremonies_long <- fu_clean %>%
   mutate(
     Aspect = case_when(
       Raw_Aspect %in% c("fu_setting_Presence_Shaman", "fu_setting_Presence_Putany") ~ "Shaman presence",
-      Raw_Aspect == "fu_setting_Music" ~ "Music",
-      Raw_Aspect == "fu_setting_Rituals_Prayers" ~ "Rituals & prayers",
-      Raw_Aspect == "fu_setting_Group_Setting" ~ "Group setting",
+      Raw_Aspect == "fu_setting_Music"            ~ "Music",
+      Raw_Aspect == "fu_setting_Rituals_Prayers"  ~ "Rituals & prayers",
+      Raw_Aspect == "fu_setting_Group_Setting"    ~ "Group setting",
       Raw_Aspect == "fu_setting_Physical_Environment" ~ "Physical environment",
-      Raw_Aspect == "fu_setting_Sharing_Circle" ~ "Sharing circle",
+      Raw_Aspect == "fu_setting_Sharing_Circle"   ~ "Sharing circle",
       Raw_Aspect == "fu_setting_Immediate_Neighbors" ~ "Immediate neighbors",
-      TRUE ~ Raw_Aspect
+      TRUE                                         ~ Raw_Aspect
     ),
     Rating = factor(
       Rating,
@@ -1458,14 +1463,14 @@ ceremonies_long <- fu_clean %>%
     )
   )
 
-# 1) Compute proportions
+# 2) Compute proportions
 ceremony_prop <- ceremonies_long %>%
   count(Aspect, Rating) %>%
   group_by(Aspect) %>%
   mutate(prop = n / sum(n)) %>%
   ungroup()
 
-# 2) Compute the descending‐mean order on ceremonies_long
+# 3) Compute the descending‐mean order
 mean_order <- ceremonies_long %>%
   mutate(R_num = as.numeric(Rating)) %>%
   group_by(Aspect) %>%
@@ -1473,48 +1478,43 @@ mean_order <- ceremonies_long %>%
   arrange(mean_rating) %>%
   pull(Aspect)
 
-# 3) Apply that ordering to **ceremony_prop** before plotting
+# 4) Apply that ordering and plot
 ceremony_prop <- ceremony_prop %>%
   mutate(Aspect = factor(Aspect, levels = mean_order))
 
-# 4) Plot
 ggplot(ceremony_prop, aes(x = Aspect, y = prop, fill = Rating)) +
   geom_col(color = NA) +
   coord_flip() +
-  scale_y_continuous(labels = percent_format()) +
+  scale_y_continuous(labels = scales::percent_format()) +
   scale_fill_manual(
-    name = "Importance",
+    name   = "Importance",
     values = c(
-      "Not at all important" = "#EFF3FF", # lightest
+      "Not at all important" = "#EFF3FF",
       "Slightly important"   = "#BDD7E7",
       "Moderately important" = "#6BAED6",
       "Very important"       = "#3182BD",
-      "Extremely important"  = "#08519C" # darkest
-    ),
-    breaks = c(
-      "Extremely important",
-      "Very important",
-      "Neutral",
-      "Slightly important",
-      "Not at all important"
+      "Extremely important"  = "#08519C"
     )
   ) +
   labs(x = NULL, y = "Percent of responses") +
   theme_minimal(base_size = 18)
+
+# 5) Collapse into three broad categories
 ceremonies_long <- ceremonies_long %>%
   mutate(
     Importance = case_when(
       Rating %in% c("Not at all important", "Slightly important") ~ "Less important",
-      Rating == "Moderately important" ~ "Moderately important",
-      Rating %in% c("Very important", "Extremely important") ~ "Important"
+      Rating == "Moderately important"                            ~ "Moderately important",
+      TRUE                                                        ~ "Important"
     ),
-    Importance = factor(Importance,
+    Importance = factor(
+      Importance,
       levels = c("Less important", "Moderately important", "Important"),
       ordered = TRUE
     )
   )
 
-# 2) Compute proportions per Aspect × Rating
+# 6) Heat‐map of % by broad Importance
 heatmap_df <- ceremonies_long %>%
   mutate(Aspect = factor(Aspect, levels = mean_order)) %>%
   count(Aspect, Importance) %>%
@@ -1522,25 +1522,22 @@ heatmap_df <- ceremonies_long %>%
   mutate(prop = n / sum(n)) %>%
   ungroup()
 
-# 3) Plot as a tile‐grid with text annotations
 ggplot(heatmap_df, aes(x = Importance, y = Aspect, fill = prop)) +
   geom_tile(color = "white", linewidth = 0.2) +
-  geom_text(aes(label = percent(prop, accuracy = 0.1)), size = 6) +
-  scale_fill_gradient(low = "white", high = "#c76cd1", labels = percent_format(accuracy = 1)) +
-  labs(
-    x = NULL,
-    y = NULL,
-    fill = "Percent\nof responses"
+  geom_text(aes(label = scales::percent(prop, accuracy = 0.1)), size = 6) +
+  scale_fill_gradient(
+    low  = "white",
+    high = "#c76cd1",
+    labels = scales::percent_format(accuracy = 1)
   ) +
+  labs(x = NULL, y = NULL, fill = "Percent\nof responses") +
   theme_minimal(base_size = 18) +
-  theme(
-    panel.grid = element_blank(),
-    legend.position = "none"
-  )
+  theme(panel.grid = element_blank(), legend.position = "none")
 
+# 7) Print mean ratings
 ceremonies_long %>%
   group_by(Aspect) %>%
-  summarize(mean_rating = mean(as.numeric(Rating))) %>%
+  summarize(mean_rating = mean(as.numeric(Rating), na.rm = TRUE)) %>%
   arrange(desc(mean_rating))
 
 # ggplot(ceremonies_long, aes(Rating, fill = Rating)) +
@@ -1556,6 +1553,13 @@ beep()
 ````{=html}
 <!--
 ## Sandbox
+
+```{r violintest, eval=FALSE, include=FALSE}
+ggplot(all_wide, aes(x = factor(prevayahuasca, y = Change_Anxiety)) +
+        geom_violin() +
+        labs(x = "Prior Ayahuasca Experience", y = "Change in Anxiety")
+```
+
 ```{r reverse for all 3 points, eval=FALSE, include=FALSE}
 ## Graveyard
 # Reverse for All 3 Points ------------------------------------------------
