@@ -1,23 +1,32 @@
 ---
-title: 'old: Aldeia Akasha: Ayahuasca, Wellbeing, and Connectedness'
-output:
-  html_document:
+title: "Aldeia Akasha: Ayahuasca, <br>Wellbeing, and Connectedness"
+author:
+  - name: "Victor Souza Eduardo"
+    affiliation: "CUNY Graduate School of Public Health"
+  - name: "Michèle Anne Barocchi, PhD"
+    affiliation: "MAPS Italia"
+date: last-modified
+date-format: medium
+last-modified: true
+published-title: "Last Updated"
+format:
+  html:
+    output-file: Akasha-Retreats-in-R.html
     toc: true
-    css: "akasha-styles.css"
-    self_contained: true
-    includes:
-      before_body: title.html
-      in_header: favicon.html
-    theme: flatly
-    toc_depth: 4
-  md_document:
-    preserve_yaml: false
-  pdf_document:
-    toc: true
-    toc_depth: '4'
+    toc-depth: 4
+    toc-expand: 2
+    self-contained: true
+    include-in-header: favicon.html
+    include-before-body: title.html
+    date-block:
+      published: false
+      modified: true
+    html-format:
+      enable-download: true
+      other-formats: false
 always_allow_html: true
 editor_options:
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -45,16 +54,17 @@ library(purrr)
 library(readxl)
 library(sysfonts)
 library(showtext)
-
-# ---- Set universal fonts ----
-font_add_google("Lato", "lato")
-showtext_auto()
-
-# Set Lato as the default ggplot2 font
-theme_set(theme_minimal(base_family = "lato"))
-update_geom_defaults("text",   list(family = "lato"))
-update_geom_defaults("label",  list(family = "lato"))
-update_geom_defaults("point",  list(family = "lato"))
+library(beepr)
+# 
+# # ---- Set universal fonts ----
+# font_add_google("Lato", "lato")
+# showtext_auto()
+# 
+# # Set Lato as the default ggplot2 font
+# theme_set(theme_minimal(base_family = "lato"))
+# update_geom_defaults("text",   list(family = "lato"))
+# update_geom_defaults("label",  list(family = "lato"))
+# update_geom_defaults("point",  list(family = "lato"))
 
 # ---- Basev Import and Clean ----
 basev <- read_excel(
@@ -147,11 +157,11 @@ basev <- read_excel(
       "connectedness - I feel emotionally connected to the natural world.",
     `bl_nsc_2 - I view humans as separate from nature.` =
       "connectedness - I view humans as separate from nature.",
-    `bl_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+    `bl_nsc_3 - I notice and appreciate the small details of nature.` =
       "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
     `bl_nsc_4 - I feel a sense of awe and wonder when in nature.` =
       "connectedness - I feel a sense of awe and wonder when in nature.",
-    `bl_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+    `bl_nsc_5 - I feel motivated to make choices that are more environmentally friendly.` =
       "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
     `bl_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
       "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
@@ -354,11 +364,11 @@ fu <- read_excel(
       "connectedness - I feel emotionally connected to the natural world.",
     `fu_nsc_2 - I view humans as separate from nature.` =
       "connectedness - I view humans as separate from nature.",
-    `fu_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+    `fu_nsc_3 - I notice and appreciate the small details of nature.` =
       "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
     `fu_nsc_4 - I feel a sense of awe and wonder when in nature.` =
       "connectedness - I feel a sense of awe and wonder when in nature.",
-    `fu_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+    `fu_nsc_5 - I feel motivated to make choices that are more environmentally friendly.` =
       "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
     `fu_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
       "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
@@ -478,11 +488,11 @@ omo <- read_excel("~/Documents/Akasha/one-month 6-30-2025.xlsx",
       "connectedness - I feel emotionally connected to the natural world.",
     `omo_nsc_2 - I view humans as separate from nature.` =
       "connectedness - I view humans as separate from nature.",
-    `omo_nsc_3 - I notice and appreciate the small details of nature (e.g., plants, animals, weather).` =
+    `omo_nsc_3 - I notice and appreciate the small details of nature.` =
       "connectedness - I notice and appreciate the small details of nature (e.g., plants, animals, weather).",
     `omo_nsc_4 - I feel a sense of awe and wonder when in nature.` =
       "connectedness - I feel a sense of awe and wonder when in nature.",
-    `omo_nsc_5 - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).` =
+    `omo_nsc_5 - I feel motivated to make choices that are more environmentally friendly.` =
       "connectedness - I feel motivated to make choices that are more environmentally friendly (e.g., recycling, conserving energy).",
     `omo_nsc_6 - I feel a strong spiritual bond with the Earth and its living beings.` =
       "connectedness - I feel a strong spiritual bond with the Earth and its living beings.",
@@ -718,9 +728,9 @@ baseline <- baseline %>%
 ```
 
 ```{r all_wide join, include=FALSE}
-colnames(baseline)
-colnames(fu)
-colnames(omo)
+# colnames(baseline)
+# colnames(fu)
+# colnames(omo)
 
 all_wide <- baseline %>%
   left_join(fu, by = "pid", suffix = c("", ".fu")) %>%
@@ -739,35 +749,45 @@ all_wide <- baseline %>%
 
 # Methods
 
-This pilot study administered **three (3) Questionnaires (*Baseline*, *Follow-up*, and *One-Month*)** to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil** between January and April 2025. Each retreat included three **(3) separate ayahuasca ceremonies** conducted over the course of one week.
+This pilot study administered **three questionnaires**: *Baseline*, *Follow-up*, and *One-Month*, to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha** in Petrópolis, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included **three ayahuasca ceremonies** conducted over the course of one week.
 
-Participants completed the *Baseline* questionnaire electronically via Qualtrics at the start of the retreat, **prior to the first ceremony.** Informed consent was obtained through an affirmative response to the consent item included at the beginning of the first questionnaire. Due to its small scale and programmatic nature, the study did not undergo formal IRB review.
+Participants completed the **Baseline questionnaire electronically** via Qualtrics at the start of the retreat, **prior to the first ceremony**. Informed consent was obtained through an affirmative response to the consent item included at the beginning of the questionnaire. Due to the small scale and programmatic nature of the study, it did not undergo formal IRB review.
 
-The *Baseline* questionnaire collected **demographic data** (age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual or healing practices), **previous ayahuasca experience**, and participants’ **primary intention** for attending the ceremony. To accommodate an **internationally diverse audience**, the education Question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and Questionnaires were offered in both **English and Portuguese**.
+The Baseline questionnaire collected:
 
-Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the *Baseline* and *One-Month* Questionnaires. A section measuring **nature and social connectedness** appeared in all three Questionnaires: *Baseline*, *Follow-up*, and *One-Month*.
+-   **Demographic information** (e.g., age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual/healing practices)
 
-All items used 5-point Likert scales (e.g., from "Strongly disagree" to "Strongly agree" or "Not at all important" to "Extremely important"). Within each section, items were presented in randomized order. Upon completing the *Baseline* questionnaire, participants were assigned an anonymous Participant ID for longitudinal tracking.
+-   **Previous ayahuasca experience**
 
-Immediately after the 3-ceremony retreat, participants received the *Follow-up* questionnaire, which captured immediate reflections. It repeated the *Baseline* measures of nature and social connectedness and included additional items on **emotional and cognitive effects** (e.g., feelings of peace, connectedness, emotional balance, and insights about personal challenges). Participants also rated the **importance of ceremonial elements**, including the presence of shamans, music, group rituals, and physical setting, on a 5-point Likert scale. Open-ended prompts invited participants to share **notable moments** and the **primary emotion** they experienced post-retreat.
+-   **Primary intention** for attending the retreat
 
-Finally, the *One-Month* questionnaire reassessed recent **wellbeing, nature and social connectedness, and mental health status**, using identical items from earlier Questionnaires to allow for longtitudinal comparisons.
+To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were offered in both **English and Portuguese**.
 
-Data analysis and presentation of results were completed using RStudio Version 2025.05.0+496 in June – July 2025.
+Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the **Baseline** and **One-Month** questionnaires. A section measuring **nature and social connectedness** appeared in **all three** questionnaires.
 
-We gratefully acknowledge the generous support and collaboration of the **Guardians and support staff of Aldeia Akasha ([homepage](https://uniretreats.org/akasha-retreat-center/))**, without whose openness, cooperation, and hospitality this pilot study would not have been possible.
+All items used **5-point Likert scales** (e.g., from “Strongly disagree” to “Strongly agree” or “Not at all important” to “Extremely important”). Items were presented in randomized order within each section. Participants received an anonymous Participant ID for longitudinal tracking.
+
+Immediately after the retreat, participants completed the **Follow-up questionnaire**, which repeated the **nature and social connectedness** measures and added items on:
+
+-   **Emotional and cognitive effects** (e.g., peace, connection, emotional balance, and personal insights)
+
+-   **Ceremonial elements** (e.g., presence of shamans, music, rituals, and setting)
+
+-   **Primary post-retreat emotions** (open-ended responses)
+
+The **One-Month questionnaire** reassessed **wellbeing**, **nature and social connectedness**, and **mental health status**, using the same items as earlier questionnaires for longitudinal comparison.
+
+All analyses and visualizations were completed using RStudio Version 2025.05.0+496 from June to July 2025.
+
+We gratefully acknowledge the generous support of the **Guardians and support staff of Aldeia Akasha** ([link](https://uniretreats.org/akasha-retreat-center/)), without whose openness, collaboration, and hospitality this pilot study would not have been possible.
 
 # Results
 
-## Participant Overview
+## Participant Characteristics
 
-### Table 1: Baseline Participant Characteristics by Retreat
+The *Baseline* sample of 62 participants reflects a relatively mature, well-educated, and internationally diverse group. **Most were women (58.1%)** in their early forties on average, and over half held at least a bachelor's degree. Geographically, the largest groups came from **Brazil, the United Kingdom, and the United States**, consistent with Aldeia Akasha's location in Rio de Janeiro, Brazil, also popular with international audiences.
 
-**Table 1** (below) reports demographic characteristics for the **62 participants** who completed the first *(Baseline)* questionnaire.
-
-**Most participants were women (58.1%)** with an **average age of 42 years** (SD = 9.05, range 24–62). **Educational attainment was high**: over half had a bachelor's or master's degree (30.6% and 25.8%, respectively). The sample was **internationally diverse, with the largest groups originating from Brazil (30.6%)**, the United Kingdom (17.7%), and United States (16.1%).
-
-**Ceremony intentions were led by spiritual growth (50.0%)**, followed by mental health (19.4%), and career (14.5%), with smaller proportions citing physical health (4.8%), curiosity (4.8%), or other purposes (6.3%). Prior ayahuasca experience varied widely: **over a third (35.5%) had taken ayahuasca 10+ times** while **one-fifth (17.7%) were first-timers**.
+**Table 1. Baseline participant characteristics by retreat**
 
 ```{r table1, echo=FALSE}
 ## Table1 only from baseline retreat with matched participants
@@ -777,9 +797,9 @@ table1_selection <- baseline %>%
     retreat,
     gender,
     age,
-    prev_ayahuasca,       # was PastAyahuasca
+    prev_ayahuasca,
     intention,
-    education,            # was HighestEducation
+    education,
     country_origin,
     country_residence
   )
@@ -787,7 +807,6 @@ table1_selection <- baseline %>%
 # Attach “label” attributes:
 label(baseline$gender)            <- "Gender"
 label(baseline$education)         <- "Highest education level"
-label(baseline$country_origin)    <- "Country of origin"
 label(baseline$country_residence) <- "Country of residence"
 label(baseline$intention)         <- "Ceremony intention"
 label(baseline$prev_ayahuasca)    <- "Times taken ayahuasca"
@@ -799,19 +818,20 @@ table1(
   + education
   + prev_ayahuasca
   + intention
-  + country_origin
   + country_residence  | retreat,
   data    = baseline,
-  overall = "Total"
+  overall = "Total",
 )
 
 ```
 
-### Table 2: Questionnaire Completion by Retreat
+### Questionnaire Completion
 
-*Displaying only participants with IDs matched to baseline*
+**Only 39% of participants completed all three questionnaires**, underscoring the challenges of long-term follow-up. While 62 individuals enrolled at baseline, just 24 made it to the final one-month survey. Retention varied considerably across retreats: **Tumã's retreat had no participants complete the final questionnaire, while Ninawa's retreat retained over half of its *Baseline* participants (52%)** through to the end.
 
-**Twenty-four (24) participants completed all three Questionnaires,** out of **62 total participants** who enrolled in the pilot**. Overall retention was thus 39%,** with retention varying by retreat from Tumã at 0% retention to Ninawa at 52% retention. *Follow-up* questionnaire retention averaged 73% overall, ranging from 43% for COLIBRI to 89% for Nixiwaka.
+Retention at *Follow-up* was notably higher at **73% overall**. Nixiwaka's retreat stood out with the highest follow-up retention at 89%, likely attributable to this group's increased contact with the research team.
+
+**Table 2: Questionnaire completion by Retreat**
 
 ```{r table2 completion, echo=FALSE}
 # 1) Define the desired order
@@ -874,11 +894,12 @@ display %>%
   kable(
     format    = "html",
     align     = c("l", "r", "r", "r"),
+    escape    = FALSE,
     col.names = c(
       "Retreat",
-      "Baseline (n, %)",
-      "Follow-up (n, % retention)",
-      "1-Mo (n, % retention)"
+      "Baseline (<i>n</i>)",
+      "Follow-up (<i>n</i>, % retention)",
+      "1-Mo (<i>n</i>, % retention)"
     )
   ) %>%
   kable_styling(
@@ -926,7 +947,7 @@ all_nat        <- all_long %>% filter(str_detect(Question_raw, "^.*_nsc_"))
 all_wellbeing  <- all_long %>% filter(str_detect(Question_raw, "^.*_wb_"))
 
 
-# define which Questions to invert
+# define which questions to invert
 inv_nat <- c(
   "I view humans as separate from nature.",
   "I feel disconnected from others."
@@ -946,11 +967,6 @@ inv_wb <- c(
 cleaned_nat <- all_nat %>%
   mutate(
     Question = str_remove(Question_raw, "^.*_nsc_\\d+\\s*-\\s*"),
-    Question = recode(
-      Question,
-      "I notice and appreciate the small details of nature (e.g., plants, animals, weather)." =
-        "I notice and appreciate the small details of nature."
-    ),
     # invert where needed
     response = if_else(Question %in% inv_nat, 6L - response, response),
     Question = if_else(
@@ -991,13 +1007,13 @@ summary_wb <- cleaned_wb %>%
   filter(timepoint != "Follow-up")
 ```
 
-### Who's Taken Ayahuasca Before, and Why?
+### Who's Taken Ayahuasca Before?
 
-#### Chart 1: How Many Times Have Participants Taken Ayahuasca?
+Chart 1 shows that prior ayahuasca experience among participants was polarized at two extremes. Over a third of participants had taken ayahuasca **more than 10 times (35%)**, while the next largest group **(21%) had never taken it at all**. This bimodal distribution suggests the retreat appealed to both committed users seeking deeper work and newcomers drawn to its promise. The intermediate groups were slightly smaller (11–18%), hinting at a possible threshold beyond which individuals either commit more fully or opt out. The sample thus reflects a dynamic mix of ayahuasca-naive and highly experienced participants, with smaller proportions in between.
 
-Chart 1 displays the frequency of prior ayahuasca experience among participants at *Baseline* (*n*=63). The largest group reported taking ayahuasca **more than 10 times (23 participants, 37%)**, followed by those who had never taken it (13 participants, 21%). Smaller proportions had taken it once (17%), 6–10 times (14%), or 2–5 times (11%). Overall, the sample includes both ayahuasca-naive and experienced participants, with a notable concentration at both extremes of experience.
+**Chart 1: How Many Times Have Participants Taken Ayahuasca?**
 
-```{r ayahuasca frequency, echo=FALSE, fig.align='left', fig.width=10}
+```{r ayahuasca frequency, echo=FALSE, fig.align='left', fig.width=9}
 
 freq <- baseline %>%
   count(prev_ayahuasca) %>%
@@ -1009,43 +1025,95 @@ freq <- baseline %>%
     label = paste0(n, " (", scales::percent(pct, accuracy = 1), ")"),
     prev_ayahuasca = factor(
       prev_ayahuasca,
-      levels = rev(
-        c("Never","One time","2–5 times","6–10 times","More than 10 times")
-      )
+      levels = c("Never","One time","2–5 times","6–10 times","More than 10 times")
     )
   )
 
 ggplot(freq, aes(x = prev_ayahuasca, y = n)) +
-  geom_col(fill = "#A8D5BA", width = 0.7) +
+  geom_col(fill = "#95d5b2", width = 0.7) +
   geom_text(
     aes(label = label),
-    hjust = -0.1,
+    vjust = -0.5,
     color = "black",
-    size = 4
+    size = 5
   ) +
   scale_y_continuous(expand = expansion(c(0, .1))) +
-  coord_flip() +
   labs(
-    x = "# Participants",
-    y = "Times Taken Ayahuasca"
+    x = "Times Taken Ayahuasca",
+    y = "# Participants"
   ) +
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 16) +
   theme(
-    panel.grid.minor     = element_blank(),
-    panel.grid.major.y   = element_blank(),
-    axis.text.x          = element_blank(),
-    axis.ticks.x         = element_blank(),
-    plot.title           = element_text(face = "bold", size = 16, hjust = 0.5),
-    axis.text            = element_text(size = 12)
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 12)),
+    axis.title.y = element_text(margin = margin(r = 12)),
+    axis.text          = element_text(size = 13)
   )
+
 ```
 
-#### Chart 2: Why are Participants Taking Ayahuasca?
+### Why Are Participants Taking Ayahuasca?
 
-**Spiritual growth** was the most common intention across nearly all experience levels. It dominated especially among participants with more ayahuasca experience, making up **56%** of intentions among those who had taken it 6–10 times and **68%** among those with 10+ experiences. **Career-related** intentions appeared fairly evenly across groups, while curiosity and physical health were mentioned only by a few participants. Interestingly, in the "2–5 times" group, **mental health** was the leading intention (57%), suggesting that participants newer to ayahuasca may engage with it initially for psychological reasons before shifting toward more spiritually framed goals. Overall, while intention profiles are broadly similar, experience level seems to shape the relative prominence of certain motivations, especially the increasing focus on spiritual growth with repeated use.
+Most participants reported attending for spiritual growth (50%), followed by mental health and career motivations. However, when broken down by past ayahuasa experience, a more nuanced pattern emerged.
 
-```{r ayahuasca-by-intention, echo=FALSE, fig.align='left'}
+**Chart 2A: What are Participants' Intentions?**
 
+```{r 2A prev overall, echo=FALSE, fig.align='left'}
+
+# ---- Define consistent levels and colors ----
+
+# Define consistent levels for intentions
+intent_levels <- c(
+  "Spiritual growth", 
+  "Mental health", 
+  "Career", 
+  "Other", 
+  "Physical health", 
+  "Curiosity"
+)
+
+# Assign consistent colors manually
+intent_colors <- c(
+  "Spiritual growth" = "#66c2a5",  # green
+  "Mental health"    = "#fc8d62",  # orange
+  "Career"           = "#8da0cb",  # blue
+  "Other"            = "#e78ac3",  # pink
+  "Physical health"  = "#ffd92f",  # yellow
+  "Curiosity"        = "#a6d854"   # lime green
+)
+
+# ---- chart ----
+
+overall_intent <- baseline %>%
+  count(intention) %>%
+  mutate(
+    prop = n / sum(n),
+    label = paste0(n, " (", scales::percent(prop, accuracy = 1), ")"),
+    intention = fct_reorder(intention, prop)
+  )
+
+ggplot(overall_intent, aes(x = intention, y = prop, fill = intention)) +
+  geom_col(width = 0.7, color = "white") +
+  geom_text(aes(label = label), hjust = -0.1, size = 4) +
+  scale_y_continuous(labels = scales::percent_format(), expand = expansion(mult = c(0, 0.2))) +
+  scale_fill_manual(values = intent_colors, guide = "none") +
+  coord_flip() +
+  labs(
+    x = "Intention",
+    y = "Proportion of Participants",
+    caption = expression(italic(n) == 62)
+  ) +
+  theme_light(base_size = 13) +
+  theme(panel.grid.minor = element_blank())
+
+```
+
+Participants' intentions reveal a shift in orientation with increasing ayahuasca experience. **Spiritual growth** dominated among those with 6 or more previous sessions, and especially in the most experienced group, among whom 68% reported it as their main reason for attending. In contrast, participants with moderate experience (2–5 sessions) were more likely to cite **mental health** as their primary intention (57%), suggesting that early encounters with ayahuasca may be motivated by psychological growth, with spiritual growth emerging as an intention as experience deepens. Less frequent intentions such as curiosity or physical health appeared sporadically across groups, while career-related goals remained steady, possibly reflecting a distinct motivational category. Together, these patterns imply an evolving relationship to ayahuasca shaped by accumulated exposure.
+
+**Chart 2B: Did Participants' Intentions Change Based on Their Previous Experience?**
+
+```{r 2B prev by intention, echo=FALSE, fig.align='left'}
 # Prepare counts + proportions
 intention_freq <- baseline %>%
   count(prev_ayahuasca, intention) %>%
@@ -1067,78 +1135,49 @@ intention_freq <- baseline %>%
     )
   )
 
-ggplot(intention_freq, aes(
-  x    = prev_ayahuasca,
-  y    = prop,
-  fill = intention
-)) +
+ggplot(intention_freq, aes(x = prev_ayahuasca, y = prop, fill = intention)) +
   geom_col(color = "white", position = "fill", width = 0.7) +
   geom_text(
     aes(label = ifelse(prop >= 0.08, scales::percent(prop, 1), "")),
     position = position_fill(vjust = 0.5),
-    color    = "black",
-    size     = 3.5
+    color = "black",
+    size = 3.5
   ) +
-  scale_y_continuous(
-    labels = scales::percent_format(),
-    expand = expansion(0)
-  ) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = scales::percent_format(), expand = expansion(0)) +
+  scale_fill_manual(values = intent_colors) +
   coord_flip() +
   labs(
-    x     = "Times Taken Ayahuasca",
-    y     = "Proportion of Intentions",
-    fill  = "Ceremony Intention",
-    title = "Intentions by Prior Ayahuasca Experience at Baseline",
+    x = "Times Taken Ayahuasca",
+    y = "Proportion of Intentions",
+    fill = "Ceremony Intention",
     caption = expression(italic(n) == 62)
   ) +
   theme_light(base_size = 13) +
   theme(
-    axis.title.y     = element_blank(),
     panel.grid.minor = element_blank(),
-    legend.position  = "bottom"
+    legend.position = "bottom"
   )
 
-# graveyard of tested charts (collapsed via RStudio's **Join Lines** feature: Ctrl+Shift+J)
-# ggplot(intention_freq, aes(x = prev_ayahuasca, y = prop, fill = intention)) +
-#   geom_col(width = 0.7, color = "white") + facet_wrap(~ intention, ncol = 2) +
-#   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = expansion(0)) +
-#   scale_fill_brewer(palette = "Set2", guide = "none") +
-#   labs(x = "Prior Ayahuasca Experience", y = "Proportion of Respondents",
-#        title = "Proportion of Each Intention by Prior Ayahuasca Experience") +
-#   theme_light(base_size = 13) +
-#   theme(panel.grid.minor    = element_blank(),
-#         axis.text.x         = element_text(angle = 30, hjust = 1))
-#
-# ggplot(intention_freq, aes(x = intention, y = prev_ayahuasca, fill = prop)) +
-#   geom_tile(color = "white") +
-#   geom_text(aes(label = scales::percent(prop, accuracy = 1)), color = "black", size = 3.5) +
-#   scale_fill_viridis_c(option = "D", direction = -1) +
-#   labs(x = "Ceremony Intention", y = "Prior Ayahuasca Experience",
-#        fill = "Proportion", title = "Distribution of Intentions by Prior Ayahuasca Experience") +
-#   theme_light(base_size = 13) +
-#   theme(panel.grid          = element_blank(),
-#         axis.text.x        = element_text(angle = 30, hjust = 1))
 ```
 
-```{r spiritual intention testing, echo=FALSE}
+Indeed, participants who had attended 6 or more previous ceremonies (*n* = 31) were significantly more likely to report spiritual growth as their primary intention compared to those with less experience. According to a Fisher's Exact Test, the odds of choosing a spiritual motivation were **3.24 times higher** in the high-experience group (OR = 3.24, 95% CI: 1.04 = 10.67, *p* = .041\*). This statistically significant association suggests that spiritual intentions may become more prominent with continued engagement in ayahuasca ceremonies. While the wide confidence interval reflects the modest sample size, this significant finding merits further exploration in future studies.
+
+```{r fisher test intention, echo=FALSE}
 tbl <- table(baseline$experience_group,
              baseline$spiritual_intent)
 
 fisher.test(tbl, alternative = "two.sided")
 ```
 
-Indeed, participants with high ayahuasca experience (6 previous ceremonies or more, *n* = 31) had significantly greater odds of reporting spiritual-growth intent compared to those with low experience. A Fisher’s Exact Test indicated that the odds of choosing spiritual intent were **3.2 times higher** in the high-experience group than in the low-experience group (odds ratio = 3.24, 95% CI: 1.04 to 10.67, *p* = 0.041\*). Because the confidence interval does not include 1, this suggests a statistically significant association between past ayahuasca use and reported spiritual motivation. While the wide confidence interval reflects the limited data in this pilot, these results provide evidence of an association worth further study.
-
 ## Nature & Social Connectedness
 
-[copy about this section and what it was intended to do, maybe reference the other scales we used]
+\[copy about this section and what it was intended to do, maybe reference the other scales we used\]
 
-### Table 3: How Participants' Nature and Social Connectedness Evolved After Retreat
+### Chart 3: How Participants' Nature and Social Connectedness Evolved After Retreat
 
 Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree.
 
-```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=8}
+```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=12}
 labeltextsize <- 6
 
 ### nat
@@ -1153,7 +1192,7 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
   ) +
   facet_wrap(
     ~ Question,
-    nrow   = 2,
+    nrow   = 3,
     scales = "fixed",
     labeller = label_wrap_gen(width = 20)
   ) +
@@ -1183,7 +1222,7 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
 
 ### Table 4: Mixed Models on Nature and Social Connectedness
 
-Table 4 summarizes paired comparisons between *Baseline* and both subsequent Questionnaires (*Follow-up* and *One-month*) across 11 Questions on **Nature and Social connectedness**.
+Table 4 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
 
 Statistically significant improvements (*p* \< .05) were found primarily in items related to social connectedness. One month after their retreats, participants reported large **reductions in feelings of disconnection from others** (**β = -1.04**, *p* \< .001\*\*\*), in addition to increases in their feeling of **being understood by others** (**β = -1.01**, *p* \<.001\*\*\*) and **sense of belonging** (**β = -0.68**, *p* \< .01\*\*). Participants also reported moderate increases in their **sense of connection to others** (**β = -0.48**, *p* \< .011\*) and to their community (**β = -0.60**, *p* \< .01\*\*). Many of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
 
@@ -1277,7 +1316,7 @@ k
 
 ## Recent Wellbeing
 
-[copy about this section]
+\[copy about this section\]
 
 ### Table 5: How Participants' Recent Wellbeing Evolved After Retreat
 
@@ -1411,13 +1450,12 @@ kable(
 
 In the *Follow-up* questionnaire, participants were asked to reflect on the ceremonial contexts of their ayahuasca ceremonies. This section aimed to assess the perceived importance of various environmental and social elements within the ceremony. Participants rated eight aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important." These items were designed to capture how components of the setting may have contributed to participants’ subjective experience.
 
-### Which aspects of the ceremony were most important to participants?
-
 According to *Chart 3*, participants rated **Music highest** (more than 90% rated it "Extremely important"), followed by **Physical environment** and **Shaman presence** (around 88–95% “Strongly Agree/Agree”). **Rituals & prayers** and **Group setting** also skew positively.
 
 By contrast, **Sharing circle** and especially **Immediate neighbors** had broader spreads. Only about half “Strongly Agree,” with larger "Neutral" and "Disagree" slices. The immediate proximity of other participants elicited the most neutral responses, with nearly half of participants selecting Neutral or below.
 
-#### Chart 3: Distribution of Responses for Ceremonial Setting Section
+### Chart 4: Which aspects of the ceremony were most important to participants?
+
 ```{r ceremonial setting clean, echo=FALSE, fig.align='left', fig.width=10}
 # 1. Pivot all your ceremony aspects (including both shaman vars) long
 ceremonies_long <- fu %>%
@@ -1463,86 +1501,32 @@ ceremonies_long <- fu %>%
     )
   )
 
-# 2) Compute proportions
-ceremony_prop <- ceremonies_long %>%
-  count(Aspect, Rating) %>%
+# calculate
+mean_ratings <- ceremonies_long %>% 
+  mutate(r = as.numeric(Rating)) %>% 
+  group_by(Aspect) %>% 
+  summarize(mean_r = mean(r, na.rm=TRUE)) %>% 
+  arrange(mean_r) %>% 
+  mutate(Aspect = fct_inorder(Aspect))
+
+summary_tbl <- ceremonies_long %>%
+  mutate(r = as.numeric(Rating)) %>%
   group_by(Aspect) %>%
-  mutate(prop = n / sum(n)) %>%
-  ungroup()
+  summarize(
+    Mean       = round(mean(r),2),
+    Top2BoxPct = percent(mean(Rating %in% c("Very important","Extremely important")), 0.1)
+  ) %>%
+  arrange(desc(Mean)) 
 
-# 3) Compute the descending‐mean order
-mean_order <- ceremonies_long %>%
-  mutate(R_num = as.numeric(Rating)) %>%
-  group_by(Aspect) %>%
-  summarize(mean_rating = mean(R_num, na.rm = TRUE)) %>%
-  arrange(mean_rating) %>%
-  pull(Aspect)
+knitr::kable(summary_tbl, format="html", align="lrr", escape = FALSE, col.names = c("Ceremonial Aspect", "Mean (1 – 5)", "% Very/Extremely<br>Important")) %>%
+  kableExtra::kable_styling(full_width=FALSE) %>%
+  kableExtra::row_spec(0, bold=TRUE) %>%
+  kableExtra::column_spec(2, background = "#EFF3FF") %>%  # shade the Mean column
+  kableExtra::footnote(
+    general = "<i>n</i> = 46, including one participant who did not finish <i>Baseline</i> but included here for descriptive purposes",
+    escape = FALSE)
 
-# 4) Apply that ordering and plot
-ceremony_prop <- ceremony_prop %>%
-  mutate(Aspect = factor(Aspect, levels = mean_order))
 
-ggplot(ceremony_prop, aes(x = Aspect, y = prop, fill = Rating)) +
-  geom_col(color = NA) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::percent_format()) +
-  scale_fill_manual(
-    name   = "Importance",
-    values = c(
-      "Not at all important" = "#EFF3FF",
-      "Slightly important"   = "#BDD7E7",
-      "Moderately important" = "#6BAED6",
-      "Very important"       = "#3182BD",
-      "Extremely important"  = "#08519C"
-    )
-  ) +
-  labs(x = NULL, y = "Percent of responses") +
-  theme_minimal(base_size = 18)
-
-# 5) Collapse into three broad categories
-ceremonies_long <- ceremonies_long %>%
-  mutate(
-    Importance = case_when(
-      Rating %in% c("Not at all important", "Slightly important") ~ "Less important",
-      Rating == "Moderately important"                            ~ "Moderately important",
-      TRUE                                                        ~ "Important"
-    ),
-    Importance = factor(
-      Importance,
-      levels = c("Less important", "Moderately important", "Important"),
-      ordered = TRUE
-    )
-  )
-
-# 6) Heat‐map of % by broad Importance
-heatmap_df <- ceremonies_long %>%
-  mutate(Aspect = factor(Aspect, levels = mean_order)) %>%
-  count(Aspect, Importance) %>%
-  group_by(Aspect) %>%
-  mutate(prop = n / sum(n)) %>%
-  ungroup()
-
-ggplot(heatmap_df, aes(x = Importance, y = Aspect, fill = prop)) +
-  geom_tile(color = "white", linewidth = 0.2) +
-  geom_text(aes(label = scales::percent(prop, accuracy = 0.1)), size = 6) +
-  scale_fill_gradient(
-    low  = "white",
-    high = "#c76cd1",
-    labels = scales::percent_format(accuracy = 1)
-  ) +
-  labs(x = NULL, y = NULL, fill = "Percent\nof responses") +
-  theme_minimal(base_size = 18) +
-  theme(panel.grid = element_blank(), legend.position = "none")
-
-# 7) Print mean ratings
-ceremonies_long %>%
-  group_by(Aspect) %>%
-  summarize(mean_rating = mean(as.numeric(Rating), na.rm = TRUE)) %>%
-  arrange(desc(mean_rating))
-
-# ggplot(ceremonies_long, aes(Rating, fill = Rating)) +
-#   geom_bar() +
-#   facet_wrap(~ExperienceGroup) 
 ```
 
 ```{r beep, message=FALSE, warning=FALSE, include=FALSE}
