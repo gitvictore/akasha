@@ -4,6 +4,7 @@ author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
   - name: "Michèle Anne Barocchi, PhD"
+    degrees: PhD
     affiliation: "MAPS Italia"
 date: last-modified
 date-format: medium
@@ -26,31 +27,27 @@ format:
       other-formats: false
 always_allow_html: true
 editor_options:
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # ---- Libraries ----
-library(dplyr)
-library(tidyr)
+library(tidyverse)
+library(readxl)
 library(table1)
 library(shiny)
+library(scales)
 library(glue)
 library(plotly)
-library(knitr)
 library(skimr)
 library(kableExtra)
 library(ggthemes)
-library(forcats)
-library(scales)
-library(tidyr)
 library(cluster)
 library(stringr)
 library(ggplot2)
 library(emmeans)
 library(lme4)
-library(purrr)
 library(readxl)
 library(sysfonts)
 library(showtext)
@@ -1169,16 +1166,101 @@ tbl <- table(baseline$experience_group,
 fisher.test(tbl, alternative = "two.sided")
 ```
 
+## Ceremonial Setting
+
+In the *Follow-up* questionnaire, participants were asked to reflect on the ceremonial contexts of their ayahuasca ceremonies. This section aimed to assess the perceived importance of various environmental and social elements within the ceremony. Participants rated eight aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important." These items were designed to capture how components of the setting may have contributed to participants’ subjective experience.
+
+Participants overwhelmingly agreed that **music** was the single most important part of the ceremony, assigning it an average importance of 4.91 out of 5 and with 97.8% of respondents rating it "very" or "extremely" important. The physical environment came next (M = 4.65; 95.7% top-2-box), closely followed by the presence of the shaman, the rituals and prayers, and the group setting itself. In contrast, the sharing circle was seen as somewhat less essential (M = 4.04; 76.1%), and one's immediate neighbors was least critical of all (M = 3.63; 52.5%). These results suggest that while most aspects of the ceremonial context were viewed as highly important, participants place particularly high value on music and relatively less on one's immediate neighbors.
+
+**Chart 4: Which Aspects of the Ceremony Were Most Important to Participants?**
+
+```{r ceremonial setting clean, echo=FALSE, fig.align='left', fig.width=10}
+# 1. Pivot all your ceremony aspects (including both shaman vars) long
+ceremonies_long <- fu %>%
+  select(
+    pid,
+    fu_setting_Presence_Shaman,
+    fu_setting_Presence_Putany,
+    fu_setting_Music,
+    fu_setting_Rituals_Prayers,
+    fu_setting_Group_Setting,
+    fu_setting_Physical_Environment,
+    fu_setting_Sharing_Circle,
+    fu_setting_Immediate_Neighbors
+  ) %>%
+  pivot_longer(
+    cols      = -pid,
+    names_to  = "Raw_Aspect",
+    values_to = "Rating"
+  ) %>%
+  filter(!is.na(Rating)) %>%
+  mutate(
+    Aspect = case_when(
+      Raw_Aspect %in% c("fu_setting_Presence_Shaman", "fu_setting_Presence_Putany") ~ "Shaman presence",
+      Raw_Aspect == "fu_setting_Music"            ~ "Music",
+      Raw_Aspect == "fu_setting_Rituals_Prayers"  ~ "Rituals & prayers",
+      Raw_Aspect == "fu_setting_Group_Setting"    ~ "Group setting",
+      Raw_Aspect == "fu_setting_Physical_Environment" ~ "Physical environment",
+      Raw_Aspect == "fu_setting_Sharing_Circle"   ~ "Sharing circle",
+      Raw_Aspect == "fu_setting_Immediate_Neighbors" ~ "Immediate neighbors",
+      TRUE                                         ~ Raw_Aspect
+    ),
+    Rating = factor(
+      Rating,
+      levels = 1:5,
+      labels = c(
+        "Not at all important",
+        "Slightly important",
+        "Moderately important",
+        "Very important",
+        "Extremely important"
+      ),
+      ordered = TRUE
+    )
+  )
+
+# calculate
+mean_ratings <- ceremonies_long %>% 
+  mutate(r = as.numeric(Rating)) %>% 
+  group_by(Aspect) %>% 
+  summarize(mean_r = mean(r, na.rm=TRUE)) %>% 
+  arrange(mean_r) %>% 
+  mutate(Aspect = fct_inorder(Aspect))
+
+summary_tbl <- ceremonies_long %>%
+  mutate(r = as.numeric(Rating)) %>%
+  group_by(Aspect) %>%
+  summarize(
+    Mean       = round(mean(r),2),
+    Top2BoxPct = percent(mean(Rating %in% c("Very important","Extremely important")), 0.1)
+  ) %>%
+  arrange(desc(Mean)) 
+
+knitr::kable(summary_tbl, format="html", align="lrr", escape = FALSE, col.names = c("Ceremonial Aspect", "Mean (1 – 5)", "% Very/Extremely<br>Important")) %>%
+  kableExtra::kable_styling(full_width=FALSE) %>%
+  kableExtra::row_spec(0, bold=TRUE) %>%
+  #kableExtra::column_spec(2, background = "#EFF3FF") %>%  # shade the Mean column
+  kableExtra::footnote(
+    general = "<i>n</i> = 46, including one participant who did not finish <i>Baseline</i> but was included here for descriptive purposes",
+    escape = FALSE)
+
+
+```
+
 ## Nature & Social Connectedness
 
-\[copy about this section and what it was intended to do, maybe reference the other scales we used\]
+One of our intentions in running this pilot study was to determine to what extent ayahuasca affected people's sense of connection to nature, and connection to one another. \[write about the scale\]
 
-### Chart 3: How Participants' Nature and Social Connectedness Evolved After Retreat
+Across the three questionnaires, participants reported consistently high levels of connectedness to nature. Responses to several questions showed steady increases over time, **particularly those related to social connection**. For example, average ratings for “I feel connected to others” and “I feel understood by others” rose significantly from *Baseline* to *Follow-up,* and continued increasing by *One-month*. In contrast, items like “I feel a strong spiritual bond with the Earth and its living beings” or “I feel emotionally connected to the natural world” remained high, but unchanged after the ceremonies.
 
-Mean response on each **Nature and Social Connectedness** section at three timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree.
+Notably, the item “I feel disconnected from others” (inverted) showed a clear upward trend, indicating **reduced feelings of social disconnection following the ceremony**.
 
-```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=12}
-labeltextsize <- 6
+Chart 3 shows mean responses to each **Nature and Social Connectedness** item at three timepoints, where 5 = Strongly Agree, 4 = Somewhat Agree, 3 = Neither agree nor disagree, 2 = Somewhat Disagree, and 1 = Strongly Disagree.
+
+**Chart 3: How Participants' Nature and Social Connectedness Evolved After Retreat**
+
+```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=20}
+labeltextsize <- 7
 
 ### nat
 ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
@@ -1190,11 +1272,17 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
     vjust = 2.0,
     size = labeltextsize
   ) +
+  geom_text(
+  aes(label = timepoint),
+  color = "black",
+  vjust = 4.5,
+  size = labeltextsize - 2
+  ) +
   facet_wrap(
     ~ Question,
-    nrow   = 3,
+    nrow   = 5,
     scales = "fixed",
-    labeller = label_wrap_gen(width = 20)
+    labeller = label_wrap_gen(width = 30)
   ) +
   scale_y_continuous(limits = c(1, 5), breaks = 1:5) +
   scale_color_manual(
@@ -1209,7 +1297,7 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
     strip.text       = element_text(face = "bold"),
-    axis.text.x      = element_text(angle = 45, hjust = 1),
+    axis.text.x      = element_blank(),
     panel.grid.major = element_line(color = "gray90"),
     legend.position  = "none"
   ) +
@@ -1220,15 +1308,17 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
 
 ```
 
-### Table 4: Mixed Models on Nature and Social Connectedness
+These patterns were further supported by linear mixed model results that account for longtitudinal measures, and are adjusted for participants who did not complete all three timepoints. Statistically significant improvements were found between *Baseline* and both *Follow-up* and *One-month* questionnaires for several items, especially in the **social connectedness** domain. The strongest effects were seen in **reduced social disconnection** (Estimate = –1.04, *p* \< .001\*\*\*) and increases in feeling understood (Estimate = –1.01, *p* \< .001\*\*\*). These are highly statistically significant findings, in addition to being large effect sizes (1.0, in this case, refers to a one-point improvement between, e.g., Somewhat Agree and Strongly Agree).
 
-Table 4 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on **Nature and Social connectedness**.
+In contrast, nature-related items, while high across the board, did not show statistically significant changes over time. These findings suggest that **participants already felt strongly connected to nature**—and while ayahuasca did not meaningfully affect this, the ceremony may have had a greater impact on **improving social and emotional connection with others**.
 
-Statistically significant improvements (*p* \< .05) were found primarily in items related to social connectedness. One month after their retreats, participants reported large **reductions in feelings of disconnection from others** (**β = -1.04**, *p* \< .001\*\*\*), in addition to increases in their feeling of **being understood by others** (**β = -1.01**, *p* \<.001\*\*\*) and **sense of belonging** (**β = -0.68**, *p* \< .01\*\*). Participants also reported moderate increases in their **sense of connection to others** (**β = -0.48**, *p* \< .011\*) and to their community (**β = -0.60**, *p* \< .01\*\*). Many of these effects were already apparent at *Follow-up* and persisted or strengthened by *One-month*.
+------------------------------------------------------------------------
 
-In contrast, most items measuring **nature connectedness**, such as feelings of awe and wonder in nature or spiritual bonds with the Earth, showed no significant changes. A notable exception was the item “*I notice and appreciate the small details of nature*,” (**β = -0.28**, *p* \< .01\*\*)) which showed a slight but significant improvement, indicating that participants experienced enhanced attentiveness to subtle aspects of the natural world one month after the retreat.
+**Table 4: Mixed Models on Nature and Social Connectedness**
 
-Overall, these results suggest the retreat mostly had a **broad and substantial impact on social connectedness**, in addition to benefitting an appreciation of the small details of nature.
+Table 4 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on Nature and Social connectedness. Linear mixed models with random intercepts were used to estimate mean differences while accounting for repeated measures and including participants who did not complete all three surveys.
+
+Statistically significant results are color-coded: \*\*\* p \< .001, (teal) \*\* p \< .01, (green) \* p \< .05.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
@@ -1322,7 +1412,7 @@ k
 
 Mean response on each **Recent Wellbeing** section at two timepoints, where 5 = Strongly Agree and 1 = Strongly Disagree. Note that recent wellbeing Questions were not asked at *Follow-up*, only at *Baseline* and *One-month*.
 
-```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=14}
+```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=16}
 ## wellbeing
 
 ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
@@ -1331,12 +1421,20 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
   geom_text(
     aes(label = sprintf("%.2f", mean_response)),
     color = "black",
-    vjust = -1.0,
+    vjust = 2,
     size = labeltextsize
   ) +
-  facet_wrap(~Question,
-    nrow = 3, scales = "fixed",
-    labeller = label_wrap_gen(width = 20)
+  geom_text(
+  aes(label = timepoint),
+  color = "black",
+  vjust = 4.5,
+  size = labeltextsize - 2
+  ) +
+  facet_wrap(
+    ~ Question,
+    nrow   = 5,
+    scales = "fixed",
+    labeller = label_wrap_gen(width = 30)
   ) +
   scale_y_continuous(limits = c(1, 5), breaks = 1:5) +
   scale_color_manual(
@@ -1350,7 +1448,7 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
     strip.text       = element_text(face = "bold"),
-    axis.text.x      = element_text(angle = 45, hjust = 1),
+    axis.text.x      = element_blank(),
     panel.grid.major = element_line(color = "gray90"),
     legend.position  = "none"
   ) +
@@ -1443,87 +1541,6 @@ kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
-
-```
-
-## Ceremonial Setting
-
-In the *Follow-up* questionnaire, participants were asked to reflect on the ceremonial contexts of their ayahuasca ceremonies. This section aimed to assess the perceived importance of various environmental and social elements within the ceremony. Participants rated eight aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important." These items were designed to capture how components of the setting may have contributed to participants’ subjective experience.
-
-Participants overwhelmingly agreed that **music** was the single most important part of the ceremony, assigning it an average importance of 4.91 out of 5 and with 97.8% of respondents rating it "very" or "extremely" important. The physical environment came next (M = 4.65; 95.7% top-2-box), closely followed by the presence of the shaman, the rituals and prayers, and the group setting itself. In contrast, the sharing circle was seen as somewhat less essential (M = 4.04; 76.1%), and one's immediate neighbors was least critical of all (M = 3.63; 52.5%). These results suggest that while most aspects of the ceremonial context were viewed as highly important, participants place particularly high value on music and relatively less on one's immediate neighbors.
-
-**Chart 4: Which Aspects of the Ceremony Were Most Important to Participants?**
-
-```{r ceremonial setting clean, echo=FALSE, fig.align='left', fig.width=10}
-# 1. Pivot all your ceremony aspects (including both shaman vars) long
-ceremonies_long <- fu %>%
-  select(
-    pid,
-    fu_setting_Presence_Shaman,
-    fu_setting_Presence_Putany,
-    fu_setting_Music,
-    fu_setting_Rituals_Prayers,
-    fu_setting_Group_Setting,
-    fu_setting_Physical_Environment,
-    fu_setting_Sharing_Circle,
-    fu_setting_Immediate_Neighbors
-  ) %>%
-  pivot_longer(
-    cols      = -pid,
-    names_to  = "Raw_Aspect",
-    values_to = "Rating"
-  ) %>%
-  filter(!is.na(Rating)) %>%
-  mutate(
-    Aspect = case_when(
-      Raw_Aspect %in% c("fu_setting_Presence_Shaman", "fu_setting_Presence_Putany") ~ "Shaman presence",
-      Raw_Aspect == "fu_setting_Music"            ~ "Music",
-      Raw_Aspect == "fu_setting_Rituals_Prayers"  ~ "Rituals & prayers",
-      Raw_Aspect == "fu_setting_Group_Setting"    ~ "Group setting",
-      Raw_Aspect == "fu_setting_Physical_Environment" ~ "Physical environment",
-      Raw_Aspect == "fu_setting_Sharing_Circle"   ~ "Sharing circle",
-      Raw_Aspect == "fu_setting_Immediate_Neighbors" ~ "Immediate neighbors",
-      TRUE                                         ~ Raw_Aspect
-    ),
-    Rating = factor(
-      Rating,
-      levels = 1:5,
-      labels = c(
-        "Not at all important",
-        "Slightly important",
-        "Moderately important",
-        "Very important",
-        "Extremely important"
-      ),
-      ordered = TRUE
-    )
-  )
-
-# calculate
-mean_ratings <- ceremonies_long %>% 
-  mutate(r = as.numeric(Rating)) %>% 
-  group_by(Aspect) %>% 
-  summarize(mean_r = mean(r, na.rm=TRUE)) %>% 
-  arrange(mean_r) %>% 
-  mutate(Aspect = fct_inorder(Aspect))
-
-summary_tbl <- ceremonies_long %>%
-  mutate(r = as.numeric(Rating)) %>%
-  group_by(Aspect) %>%
-  summarize(
-    Mean       = round(mean(r),2),
-    Top2BoxPct = percent(mean(Rating %in% c("Very important","Extremely important")), 0.1)
-  ) %>%
-  arrange(desc(Mean)) 
-
-knitr::kable(summary_tbl, format="html", align="lrr", escape = FALSE, col.names = c("Ceremonial Aspect", "Mean (1 – 5)", "% Very/Extremely<br>Important")) %>%
-  kableExtra::kable_styling(full_width=FALSE) %>%
-  kableExtra::row_spec(0, bold=TRUE) %>%
-  kableExtra::column_spec(2, background = "#EFF3FF") %>%  # shade the Mean column
-  kableExtra::footnote(
-    general = "<i>n</i> = 46, including one participant who did not finish <i>Baseline</i> but was included here for descriptive purposes",
-    escape = FALSE)
-
 
 ```
 
