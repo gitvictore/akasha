@@ -1,43 +1,50 @@
-<<<<<<< HEAD
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+# macOS cruft
 .DS_Store
-=======
+
 # History files
 .Rhistory
 .Rapp.history
+
 # Session Data files
 .RData
 .RDataTmp
+
 # User-specific files
 .Ruserdata
+
+# RStudio project files
+.Rproj.user/
+
 # Example code in package build process
 *-Ex.R
+
 # Output files from R CMD build
 /*.tar.gz
-# Output files from R CMD check
 /*.Rcheck/
-# RStudio files
-.Rproj.user/
-# produced vignettes
+
+# Vignettes
 vignettes/*.html
 vignettes/*.pdf
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
+
+# OAuth2 token
 .httr-oauth
-# knitr and R markdown default cache directories
+
+# knitr / R Markdown caches
 *_cache/
 /cache/
-# Temporary files created by R markdown
+
+# Temporary Rmd artifacts
 *.utf8.md
 *.knit.md
-# R Environment Variables
+
+# Environment Variables
 .Renviron
+
 # pkgdown site
 docs/
+
 # translation temp files
 po/*~
-# RStudio Connect folder
+
+# RStudio Connect
 rsconnect/
->>>>>>> 4be8d6367a0152552e0f19f7f9ccea5100662f4d
