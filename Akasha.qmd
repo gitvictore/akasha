@@ -1,5 +1,5 @@
 ---
-title: "Aldeia Akasha: Ayahuasca, <br>Wellbeing, and Connectedness"
+title: "Wellbeing and Connectedness After Ayahuasca Retreats: Findings from a Pilot Study in Brazil"
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
@@ -11,7 +11,7 @@ last-modified: true
 published-title: "Last Updated"
 format:
   html:
-    output-file: Akasha-Retreats-in-R.html
+    output-file: index.html
     toc: true
     toc-depth: 4
     toc-expand: 2
