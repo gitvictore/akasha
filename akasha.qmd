@@ -1,5 +1,6 @@
 ---
 title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study in Petrópolis, Brazil"
+abstract: "coming up next"
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
@@ -40,6 +41,7 @@ library(shiny)
 library(scales)
 library(glue)
 library(plotly)
+library(broom)
 library(skimr)
 library(kableExtra)
 library(ggthemes)
@@ -1157,13 +1159,21 @@ ggplot(intention_freq, aes(x = prev_ayahuasca, y = prop, fill = intention)) +
 
 ```
 
-Indeed, participants who had attended 6 or more previous ceremonies (*n* = 31) were significantly more likely to report spiritual growth as their primary intention compared to those with less experience. According to a Fisher's Exact Test, the odds of choosing a spiritual motivation were **3.24 times higher** in the high-experience group (OR = 3.24, 95% CI: 1.04 = 10.67, *p* = .041\*). This statistically significant association suggests that spiritual intentions may become more prominent with continued engagement in ayahuasca ceremonies. While the wide confidence interval reflects the modest sample size, this significant finding merits further exploration in future studies.
+Indeed, participants who had attended 6 or more previous ceremonies (*n* = 31) were significantly more likely to report spiritual growth as their primary intention compared to those with less experience. In a logistic regression adjusting for retreat, participants in the high-experience group had more than twice the odds of reporting a spiritual intention (OR = 2.53, 95% CI: 1.16 to 5.82, *p* = 0.024\*). This statistically significant association suggests that spiritual intentions may become more prominent with continued engagement in ayahuasca ceremonies, and could merit further exploration in future studies.
 
 ```{r fisher test intention, include=FALSE, echo=FALSE}
-tbl <- table(baseline$experience_group,
-             baseline$spiritual_intent)
+# tbl <- table(baseline$experience_group,
+#              baseline$spiritual_intent)
+# 
+# fisher.test(tbl, alternative = "two.sided")
 
-fisher.test(tbl, alternative = "two.sided")
+fisherglm = glm(spiritual_intent ~ experience_group + retreat, data = baseline, family = binomial)
+summary(fisherglm)
+
+tidy(fisherglm,
+     conf.int     = TRUE,     # ask for confidence intervals
+     exponentiate = TRUE      # return exp(estimate) instead of the log‐odds
+)
 ```
 
 ## Ceremonial Setting
