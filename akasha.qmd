@@ -747,7 +747,7 @@ all_wide <- baseline %>%
 
 # Introduction
 
-Ayahuasca, a psychoactive brew originating from Indigenous Amazonian traditions, has garnered global interest for its potential psychological and spiritual benefits. While clinical and neurobiological studies have grown in recent years, there is limited research on ayahuasca in naturalistic retreat settings, where participants often engage in multiple ceremonies over several days, immersed in ritual, music, and community. These contextual elements may play a critical role in shaping outcomes, yet they also complicate efforts to attribute change solely to the pharmacological effects of the brew.
+Ayahuasca, a psychoactive brew originating from indigenous Amazonian traditions, has garnered global interest for its potential psychological and spiritual benefits. While clinical and neurobiological studies have grown in recent years, there is limited research on ayahuasca in naturalistic retreat settings, where participants often engage in multiple ceremonies over several days, immersed in ritual, music, and community. These contextual elements may play a critical role in shaping outcomes, yet they also complicate efforts to attribute change solely to the pharmacological effects of the brew.
 
 This pilot study aimed to assess changes in participants’ subjective sense of connectedness (both to nature and to others) as well as emotional wellbeing following participation in ceremonial ayahuasca retreats in Petrópolis, Brazil. Surveys were administered at three timepoints: before the retreat, immediately afterward, and one month later. We also explored how prior experience with ayahuasca shaped participants’ intentions and outcomes. One notable pattern was that participants with greater ayahuasca experience were significantly more likely to cite spiritual growth as their primary motivation for attending the retreat, suggesting a shift in orientation that may deepen with continued experience.
 
@@ -758,6 +758,8 @@ In addition to tracking short-term changes, we sought to identify methodological
 This pilot study administered **three questionnaires using Qualtrics**: *Baseline*, *Follow-up*, and *One-Month*, to participants at four ceremonial ayahuasca retreats held at Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included three ayahuasca ceremonies conducted by indigenous spiritual leaders over the course of one week.
 
 Questionnaires were offered in both English and Portuguese, and participants received an anonymous Participant ID at the end of *Baseline* for longitudinal tracking.
+
+[**Questionnaire Timing**]{style="font-size: 1.45em;"}
 
 ![](qtiming.png){fig-align="center"}
 
