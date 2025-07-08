@@ -1,19 +1,6 @@
-::: {#ga-script}
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-MV77RWFDV0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-MV77RWFDV0', {
-    cookie_domain: 'none'
-  });
-</script>
-:::
-
 ---
 title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
-abstract: "coming up next!"
+abstract: "coming up next! goat"
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
