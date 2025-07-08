@@ -27,6 +27,7 @@ format:
       enable-download: true
       other-formats: false
     respect-user-color-scheme: true
+    font: Roboto
 theme:
   light: arrow-light
   dark: darkly
@@ -63,14 +64,14 @@ library(showtext)
 library(beepr)
 # 
 # # ---- Set universal fonts ----
-# font_add_google("Lato", "lato")
+# font_add_google("Helvetica Neue", "helvetica neue")
 # showtext_auto()
-# 
-# # Set Lato as the default ggplot2 font
-# theme_set(theme_minimal(base_family = "lato"))
-# update_geom_defaults("text",   list(family = "lato"))
-# update_geom_defaults("label",  list(family = "lato"))
-# update_geom_defaults("point",  list(family = "lato"))
+
+# Set Lato as the default ggplot2 font
+theme_set(theme_minimal(base_family = "helvetica neue"))
+update_geom_defaults("text",   list(family = "helvetica neue"))
+update_geom_defaults("label",  list(family = "helvetica neue"))
+update_geom_defaults("point",  list(family = "helvetica neue"))
 
 # ---- Basev Import and Clean ----
 basev <- read_excel(
