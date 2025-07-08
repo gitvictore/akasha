@@ -1,5 +1,5 @@
 ---
-title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study in Petrópolis, Brazil"
+title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
 abstract: "coming up next"
 author:
   - name: "Victor Souza Eduardo"
@@ -11,6 +11,8 @@ date: last-modified
 date-format: medium
 last-modified: true
 published-title: "Last Updated"
+website:
+  google-analytics: "G-TSY9SM6ZEW"
 format:
   html:
     output-file: index.html
@@ -44,7 +46,10 @@ library(plotly)
 library(broom)
 library(skimr)
 library(kableExtra)
+library(stringr)
 library(ggthemes)
+library(tidytext)
+library(textdata)
 library(cluster)
 library(stringr)
 library(ggplot2)
@@ -1555,6 +1560,64 @@ kable(
   footnote(
     general = "Significance codes: * p < .05; ** p < .01; *** p < .001"
   )
+
+```
+
+```{r qual exploration}
+nrc <- get_sentiments("nrc")
+
+# Combine definitions
+conn_defs <- baseline %>%
+  select(pid, bl_conn_def) %>%
+  rename(pre = bl_conn_def) %>%
+  left_join(select(fu, pid, fu_conn_def_txt), by = "pid") %>%
+  rename(post = fu_conn_def_txt)
+
+# Clean and tokenize
+conn_defs_tokens <- conn_defs %>%
+  pivot_longer(cols = c(pre, post), names_to = "timepoint", values_to = "text") %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words, by = "word")
+
+conn_defs_tokens %>%
+  count(timepoint, word, sort = TRUE) %>%
+  group_by(timepoint) %>%
+  slice_max(n, n = 10) %>%
+  ggplot(aes(x = reorder(word, n), y = n, fill = timepoint)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~timepoint, scales = "free") +
+  coord_flip() +
+  labs(title = "Most Common Words in Connection Definitions", x = "", y = "Count")
+
+conn_defs_tokens %>%
+  inner_join(get_sentiments("nrc")) %>%
+  count(timepoint, sentiment, sort = TRUE)
+
+sentiment_by_pid <- conn_defs_tokens %>%
+  inner_join(nrc, by = "word") %>%
+  count(pid, timepoint, sentiment) %>%
+  pivot_wider(names_from = timepoint, values_from = n, values_fill = 0) %>%
+  mutate(diff = post - pre)
+
+conn_defs_tokens %>%
+  inner_join(nrc, by = "word") %>%
+  count(timepoint, sentiment, sort = TRUE) %>%
+  group_by(timepoint) %>%
+  mutate(pct = n / sum(n)) %>%
+  ungroup()
+
+conn_defs_tokens %>%
+  inner_join(nrc, by = "word") %>%
+  count(timepoint, sentiment) %>%
+  ggplot(aes(x = sentiment, y = n, fill = timepoint)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Sentiment Composition of Connection Definitions",
+    x = "Sentiment", y = "Count"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 ```
 
