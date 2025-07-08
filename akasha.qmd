@@ -1,6 +1,6 @@
 ---
-title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
-abstract: "coming up next! goat"
+title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
+abstract: "This longitudinal pilot study investigated changes in wellbeing and social connectedness among participants at ceremonial ayahuasca retreats in Petrópolis, Brazil. Participants completed surveys at baseline (before retreat), follow up (immediately post-retreat), and one month after the retreat. Results indicated significant improvements in mental health and social connectedness, notably in reduced loneliness and anxiety, and increased feelings of belonging and awe. Perhaps unexpectedly, connectedness to nature showed minimal change, being already high at baseline. Distinguishing the specific effects of ayahuasca from those of the retreat environment proved challenging, highlighting the need for future research with control groups attending non-psychoactive retreats. A six-month follow-up is planned to assess longer-term impacts."
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
@@ -745,45 +745,29 @@ all_wide <- baseline %>%
   select(-c(timepoint.omo, timepoint.fu))
 ```
 
-```{=html}
 # Introduction
-[draft literature review]
--->
-```
+
+Ayahuasca, a psychoactive brew originating from Indigenous Amazonian traditions, has garnered global interest for its potential psychological and spiritual benefits. While clinical and neurobiological studies have grown in recent years, there is limited research on ayahuasca in naturalistic retreat settings, where participants often engage in multiple ceremonies over several days, immersed in ritual, music, and community. These contextual elements may play a critical role in shaping outcomes, yet they also complicate efforts to attribute change solely to the pharmacological effects of the brew.
+
+This pilot study aimed to assess changes in participants’ subjective sense of connectedness (both to nature and to others) as well as emotional wellbeing following participation in ceremonial ayahuasca retreats in Petrópolis, Brazil. Surveys were administered at three timepoints: before the retreat, immediately afterward, and one month later. We also explored how prior experience with ayahuasca shaped participants’ intentions and outcomes. One notable pattern was that participants with greater ayahuasca experience were significantly more likely to cite spiritual growth as their primary motivation for attending the retreat, suggesting a shift in orientation that may deepen with continued experience.
+
+In addition to tracking short-term changes, we sought to identify methodological considerations for future research, including the need for comparison groups and longer follow-up periods to assess the durability and specificity of observed effects.
 
 # Methods
 
-This pilot study administered **three questionnaires**: *Baseline*, *Follow-up*, and *One-Month*, to participants at **four ceremonial ayahuasca retreats** held at **Aldeia Akasha** in Petrópolis, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included **three ayahuasca ceremonies** conducted over the course of one week.
+This pilot study administered **three questionnaires using Qualtrics**: *Baseline*, *Follow-up*, and *One-Month*, to participants at four ceremonial ayahuasca retreats held at Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included three ayahuasca ceremonies conducted by indigenous spiritual leaders over the course of one week.
+
+Questionnaires were offered in both English and Portuguese, and participants received an anonymous Participant ID at the end of *Baseline* for longitudinal tracking.
 
 ![](qtiming.png){fig-align="center"}
 
-Participants completed the **Baseline questionnaire electronically** via Qualtrics at the start of the retreat, **prior to the first ceremony**. Informed consent was obtained through an affirmative response to the consent item included at the beginning of the questionnaire. Due to the small scale and programmatic nature of the study, it did not undergo formal IRB review.
+The *Baseline* questionnaire collected participant demographic data (age, gender, education, language, country of origin, religious affiliation), degree of prior experience with ayahuasca, and intentions for participating in the retreat (mental or physical health concerns, for example). It also assessed baseline levels of wellbeing, including emotional states (e.g., calmness, anxiety, depression), physical comfort, concentration, sleep, decision-making, motivation, purpose, awe, satisfaction with life, social support, and relationship conflict. The questionnaire also measured nature and social connectedness, along with an open-ended definition of connection. Both the recent wellbeing and nature/social connectedness sections were asked using 5-point Likert scales, ranging from Strongly Agree to Strongly Disagree.
 
-The Baseline questionnaire collected:
+The *Follow-up* questionnaire (administered shortly after the retreat) assessed participants' immediate post-ceremony emotional states (e.g., relaxed, connected, balanced, insightful, confused) and importance of the ceremonial setting (presence of facilitators, immediate neighbors, music, physical environment). It also collected qualitative data on the most helpful aspects of the ceremony, strongest emotions experienced. The same connectedness scales as the baseline were repeated, allowing evaluation of changes immediately following the retreat. Participants again provided a definition of connection.
 
--   **Demographic information** (e.g., age, gender, highest education level, country of origin and residence, primary language, religious affiliation, and prior spiritual/healing practices)
+At one month post-retreat, the *One-Month* questionnaire captured longer-term emotional states (relaxed, connected, emotionally balanced, insightful, confused). The questionnaire repeated the baseline wellbeing and nature/social connectedness scales, enabling analysis of sustained changes. Participants again provided qualitative reflections through open-ended questions and self-definitions of connection.
 
--   **Previous ayahuasca experience**
-
--   **Primary intention** for attending the retreat
-
-To accommodate an **internationally diverse audience**, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*), and questionnaires were offered in both **English and Portuguese**.
-
-Participants also completed a section on **recent wellbeing over the past two weeks** (e.g., calmness, irritability, anxiety, depressive symptoms, and life satisfaction) in both the **Baseline** and **One-Month** questionnaires. A section measuring **nature and social connectedness** appeared in **all three** questionnaires.
-
-All items used **5-point Likert scales** (e.g., from “Strongly disagree” to “Strongly agree” or “Not at all important” to “Extremely important”). Items were presented in randomized order within each section. Participants received an anonymous Participant ID for longitudinal tracking.
-
-Immediately after the retreat, participants completed the **Follow-up questionnaire**, which repeated the **nature and social connectedness** measures and added items on:
-
--   **Emotional and cognitive effects** (e.g., peace, connection, emotional balance, and personal insights)
-
--   **Ceremonial elements** (e.g., presence of shamans, music, rituals, and setting)
-
--   **Primary post-retreat emotions** (open-ended responses)
-
-The **One-Month questionnaire** reassessed **wellbeing**, **nature and social connectedness**, and **mental health status**, using the same items as earlier questionnaires for longitudinal comparison.
-
-All analyses and visualizations were completed using RStudio Version 2025.05.0+496 from June to July 2025.
+Informed consent was obtained through an affirmative response to the consent item included at the beginning of the questionnaire. Due to the small scale and programmatic nature of the study, it did not undergo formal IRB review. All analyses and visualizations were completed using RStudio Version 2025.05.0+496 from June to July 2025.
 
 We gratefully acknowledge the generous support of the **Guardians and support staff of Aldeia Akasha** ([link](https://uniretreats.org/akasha-retreat-center/)), without whose openness, collaboration, and hospitality this pilot study would not have been possible.
 
@@ -791,7 +775,7 @@ We gratefully acknowledge the generous support of the **Guardians and support st
 
 ## Participant Characteristics
 
-The *Baseline* sample of 62 participants reflects a relatively mature, well-educated, and internationally diverse group. **Most were women (58.1%)** in their early forties on average, and over half held at least a bachelor's degree. Geographically, the largest groups came from **Brazil, the United Kingdom, and the United States**, consistent with Aldeia Akasha's location in Rio de Janeiro, Brazil, also popular with international audiences.
+The *Baseline* sample of 62 participants reflects a relatively mature, well-educated, and internationally diverse group. **Most were women (58.1%)** in their early forties on average, and over half held at least a bachelor's degree. Geographically, the largest groups came from **Brazil, the United Kingdom, and the United States**, consistent with Aldeia Akasha's location in Rio de Janeiro, Brazil, also popular with international audiences. To accommodate this internationally diverse audience, the education question included examples from various systems (e.g., *Ensino Fundamental*, *Lycée*, *Grundschule*).
 
 **Table 1. Baseline participant characteristics by retreat**
 
@@ -833,9 +817,9 @@ table1(
 
 ### Questionnaire Completion
 
-**Only 39% of participants completed all three questionnaires**, consistent with typical challenges of long-term follow-up in survey-based research. While 62 individuals enrolled at baseline, just 24 made it to the final one-month survey. Retention varied considerably across retreats: **Tumã's retreat had no participants complete the final questionnaire, while Ninawa's retreat retained over half of its *Baseline* participants (52%)** through to the end.
+**Only 39% of participants completed all three questionnaires**, consistent with typical challenges of long-term follow-up in survey-based research. While 62 individuals enrolled at baseline, just 24 made it to the final one-month survey. Retention varied considerably across retreats: Tumã's retreat had no participants complete the final questionnaire, while Ninawa's retreat retained over half of its *Baseline* participants (52%) through to the end.
 
-Retention at *Follow-up* was higher at **73% overall**. Nixiwaka's retreat stood out with the highest follow-up retention at 89%, likely attributable to this group's increased contact with the research team.
+Retention at *Follow-up* was higher at 73% overall. Nixiwaka's retreat stood out with the highest follow-up retention at 89%, likely attributable to this group's increased contact with the research team.
 
 **Table 2: Questionnaire completion by Retreat**
 
@@ -1015,7 +999,7 @@ summary_wb <- cleaned_wb %>%
 
 ### Who's Taken Ayahuasca Before?
 
-Chart 1 shows that prior ayahuasca experience among participants was polarized at two extremes. Over a third of participants had taken ayahuasca **more than 10 times (35%)**, while the next largest group **(21%) had never taken it at all**. This bimodal distribution suggests the retreat appealed to both committed users seeking deeper work and newcomers drawn to its promise. The intermediate groups were slightly smaller (11–18%). The sample thus reflects a dynamic mix of ayahuasca-naive and highly experienced participants, with smaller proportions in between.
+Chart 1 shows that prior ayahuasca experience among participants was polarized at two extremes. Over a third of participants had taken ayahuasca **more than 10 times (35%)**, while the next largest group **(21%) had never taken it at all**. This nearly bimodal distribution suggests the retreat appealed to both users with extensive experience and newcomers drawn to its promise. The intermediate groups were slightly smaller (11–18%). The sample thus reflects a mix of ayahuasca-naive and highly experienced participants, with smaller proportions in between.
 
 **Chart 1: How Many Times Have Participants Taken Ayahuasca?**
 
@@ -1061,7 +1045,7 @@ ggplot(freq, aes(x = prev_ayahuasca, y = n)) +
 
 ### Why Are Participants Taking Ayahuasca?
 
-Most participants reported **attending for spiritual growth (50%)**, followed by mental health and career motivations. However, when broken down by past ayahuasa experience, a more nuanced pattern emerged.
+**Most participants reported attending for spiritual growth (50%)**, followed by mental health and career motivations. However, when broken down by past ayahuasa experience, a more nuanced pattern emerged.
 
 **Chart 2A: What are Participants' Intentions?**
 
@@ -1115,7 +1099,7 @@ ggplot(overall_intent, aes(x = intention, y = prop, fill = intention)) +
 
 ```
 
-Participants' intentions reveal a shift in orientation with increasing ayahuasca experience. **Spiritual growth** dominated among those with 6 or more previous sessions, and especially in the most experienced group, among whom 68% reported it as their main reason for attending. In contrast, participants with moderate experience (2–5 sessions) were more likely to cite **mental health** as their primary intention (57%), suggesting that early encounters with ayahuasca may be motivated by psychological growth, with spiritual growth emerging as an intention as experience deepens. Less frequent intentions such as curiosity or physical health appeared sporadically across groups, while career-related goals remained steady. Together, these patterns imply an evolving relationship to ayahuasca shaped by accumulated exposure.
+Participants' intentions reveal a shift in orientation with increasing ayahuasca experience. **Spiritual growth** dominated among those with 6 or more previous sessions. In the most experienced group of participants, 68% reported it as their main reason for attending. In contrast, participants with fewer experiences (2–5 sessions) were more likely to cite **mental health** as their primary intention (57%), suggesting that early encounters with ayahuasca may be motivated by psychological growth, with spiritual growth emerging as an intention as experience deepens. Less frequent intentions such as curiosity or physical health appeared sporadically across groups, while career-related goals remained steady. Together, these patterns suggest an evolving relationship to ayahuasca shaped by increasing exposure.
 
 **Chart 2B: Did Participants' Intentions Change Based on Their Previous Experience?**
 
@@ -1166,7 +1150,7 @@ ggplot(intention_freq, aes(x = prev_ayahuasca, y = prop, fill = intention)) +
 
 ```
 
-Indeed, participants who had attended 6 or more previous ceremonies (*n* = 31) were significantly more likely to report spiritual growth as their primary intention compared to those with less experience. In a logistic regression adjusting for retreat, participants in the high-experience group had more than twice the adjusted odds of reporting a spiritual intention (OR = 2.53, 95% CI: 1.16 to 5.82, *p* = 0.024\*). This statistically significant association suggests that spiritual intentions may become more prominent with continued engagement in ayahuasca ceremonies, and merits further exploration in future studies.
+Indeed, participants who had attended 6 or more previous ceremonies (*n* = 31) were **significantly more likely to report spiritual growth as their primary intention** compared to those with less experience. In a logistic regression adjusting for retreat, participants in the high-experience group had more than twice the adjusted odds of reporting a spiritual intention (OR = 2.53, 95% CI: 1.16 to 5.82, *p* = 0.024\*). This statistically significant association suggests that spiritual intentions may become more prominent with continued engagement in ayahuasca ceremonies, and merits further exploration in future studies.
 
 ```{r logistic experience x intention, include=FALSE, echo=FALSE}
 # tbl <- table(baseline$experience_group,
@@ -1187,11 +1171,11 @@ tidy(fisherglm,
 
 In the *Follow-up* questionnaire, participants were asked to reflect on the perceived importance of various aspects within the ceremonial setting. Participants rated eight environmental and social aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important."
 
-Participants overwhelmingly agreed that **music** **was the single most important part of the ceremony**, assigning it an average importance of 4.91 out of 5 and with 97.8% of respondents rating it "very" or "extremely" important. One participant wrote "*the chants liberated a great happiness and enchantment in me*" (translated from Portuguese). The physical environment came next (M = 4.65; 95.7% top-2-box score, defined as the percentage of respondents selecting the two highest categories on the 5-point Likert scale), closely followed by the presence of the shaman, the rituals and prayers, and the group setting itself.
+Participants overwhelmingly agreed that **music** **was the most important part of the ceremony**, assigning it an average importance of 4.91 out of 5 and with 97.8% of respondents selecting the top-2-box, or the two highest categories in the scale, "very important" and "extremely important." One participant wrote "*the chants liberated a great happiness and enchantment in me*" (translated from Portuguese). The physical environment came next (M = 4.65; 95.7% top-2-box score), closely followed by the presence of the shaman, the rituals and prayers, and the group setting itself.
 
-In contrast, **one's immediate neighbors during ceremony were the least essential of all** (M = 3.63; 52.5% top-2-box), while the sharing circle—where participants shared their intentions with one another before the first ceremony—was also seen as less essential (M = 4.04; 76.1%).
+In contrast, **one's immediate neighbors during ceremony were the least essential of all** (M = 3.63; 52.5% top-2-box) with only about half of participants rating it as very or extremely important. The sharing circle—where participants shared their intentions with one another before the first ceremony—was also seen as less essential (M = 4.04; 76.1% top-2-box).
 
-These results suggest that while nearly all aspects of the ceremonial context were viewed as highly important, participants place particularly high value on music and relatively less on one's immediate neighbors and the sharing circle.
+These results suggest that while nearly all aspects of the ceremonial context were viewed as highly important, participants place particularly high value on music and relatively less on one's immediate neighbors and the sharing circle. Future research would do well to distinguish between "chants," typically performed at the start of ceremony, and "songs" which are sang towards the middle to end, each with distinct experiences and purposes as described by ceremony facilitators.
 
 **Chart 3: Which Aspects of the Ceremony Were Most Important to Participants?**
 
@@ -1268,22 +1252,20 @@ knitr::kable(summary_tbl, format="html", align="lrr", escape = FALSE, col.names 
 
 ```
 
-Participants were also asked to describe the ceremonial setting in one word. Common themes included feelings of *safety*, *connection*, *being held*, and a sense of *belonging*. Many described the setting as *sacred*, *powerful*, and even *cosmic*. Participants' language also reflect that the setting fostered a profound sense of emotional security and relational trust, with one writing "*I felt extremely taken care of in spite of the intimate psychological content that was worked through inside of me.*" This suggests that participants experienced the ceremonial setting as not just a physical or logistical arrangement, but also a setting with a spiritual, sacred, protective element in their subjective experience.
-
-Future research would do well to distinguish between "chants," typically performed at the start of ceremony, and "songs" which are sang towards the middle to end, each with distinct experiences and purposes as described by ceremony facilitators.
+Participants were also asked to describe the ceremonial setting in one word. Common themes included feelings of safety, connection, being held, and a sense of belonging. Many described the setting as *sacred*, *powerful*, and even *cosmic*. Participants' language also reflect that the setting fostered a profound sense of emotional security and relational trust, with one writing "*I felt extremely taken care of in spite of the intimate psychological content that was worked through inside of me.*" This suggests that participants experienced the ceremonial setting as not just a physical or logistical arrangement, but also a setting with a spiritual, sacred, protective element in their subjective experience.
 
 ## Nature & Social Connectedness
 
-One of our intentions in running this pilot study was to determine to what extent ayahuasca altered people's sense of connection to nature, and connection to one another. To this end, a section of questions were added to all three questionnaires (*Baseline, Follow-up, One-Month)* with a 5-point Likert scale ranging from Strongly Agree to Strongly Disagree.
+One of our intentions in running this pilot study was to determine to what extent ayahuasca altered people's sense of connection to nature, and connection to one another. To this end, a scale of questions was included in all three questionnaires (*Baseline, Follow-up, One-Month)* with a 5-point Likert scale ranging from Strongly Agree to Strongly Disagree.
 
-Across the three questionnaires, participants reported consistently high levels of connectedness to nature with little change. Responses related to **social connection**, however, showed robust increases. For example, average ratings for “I feel connected to others” and “I feel understood by others” rose significantly from *Baseline* to *Follow-up,* and continued increasing up to *One-month*. Indeed, in describing the greatest emotion they felt post-ceremony, one participant wrote "more connectedness" while another wrote about their "bond with new friends."
+Across the three questionnaires, participants reported consistently high levels of connectedness to nature with little change. Responses related to **social connection**, however, showed robust increases. For example, average ratings for “I feel connected to others” and “I feel understood by others” rose significantly from *Baseline* to *Follow-up,* and continued increasing up to *One-month*. Indeed, in describing the greatest emotion they felt post-ceremony, one participant wrote simply "*more connectedness*" while another wrote about their "*bond with new friends.*"
 
 Chart 4 shows mean responses to each **Nature and Social Connectedness** item at three timepoints, where 5 = Strongly Agree, 4 = Somewhat Agree, 3 = Neither agree nor disagree, 2 = Somewhat Disagree, and 1 = Strongly Disagree.
 
 **Chart 4: How Participants' Nature and Social Connectedness Evolved After Retreat**
 
 ```{r chart: naturesocial across timepoints, echo=FALSE, fig.width=16, fig.height=20}
-labeltextsize <- 7
+labeltextsize <- 9
 
 ### nat
 ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
@@ -1315,7 +1297,7 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
       "One-month" = "#116b07"
     )
   ) +
-  theme_minimal(base_size = 20) +
+  theme_minimal(base_size = 24) +
   theme(
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
@@ -1331,17 +1313,17 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
 
 ```
 
-These patterns were further supported by linear mixed model results that account for longtitudinal measures, and are adjusted for participants who did not complete all three timepoints. The strongest effects were seen in **reduced social disconnection** (β = –1.04, *p* \< .001\*\*\*) and **increases in feeling understood** (β = –1.01, *p* \< .001\*\*\*). These are highly statistically significant findings, in addition to being large effect sizes. An estimate of 1.0, in this case, refers to a one-point improvement in responses, e.g., from Somewhat Agree (4) to Strongly Agree (5).
-
-In contrast, nature-related items, while already high across the board, did not show statistically significant changes over time. These findings suggest that **participants already felt strongly connected to nature**—and while ayahuasca did not meaningfully affect this, the ceremony may have had a greater impact on **improving social and emotional connection with others**.
-
 ------------------------------------------------------------------------
+
+These patterns were further supported by linear mixed model results that account for longitudinal measures, and adjusted for participants who did not complete all three timepoints. The strongest effects were seen in **reduced social disconnection** (β = 1.04, *p* \< .001\*\*\*) and **increases in feeling understood** (β = 1.01, *p* \< .001\*\*\*). These are highly statistically significant findings, in addition to being large effect sizes. An estimate of 1.0, in this case, would refer to a one-point improvement in responses, e.g., from Somewhat Agree (4) to Strongly Agree (5).
+
+In contrast, nature-related items, while already high across the board, did not show statistically significant changes over time. These findings suggest that **participants largely already felt strongly connected to nature**—and while ayahuasca did not meaningfully affect this, the retreat had a greater impact on **improving social and emotional connection with others**.
 
 **Table 3: Mixed Models on Nature and Social Connectedness**
 
 Table 3 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on Nature and Social connectedness. Linear mixed models with random intercepts were used to estimate mean differences while accounting for repeated measures and including participants who did not complete all three surveys.
 
-Statistically significant results are color-coded: \*\*\* p \< .001, (teal) \*\* p \< .01, (green) \* p \< .05.
+Statistically significant results are color-coded where [**purple (p \< .001 \*\*\*** )]{style="background-color:#5E4FA2; color:#ffffff;"} is highly significant, [**blue (p \< .01 \*\*\*** )]{style="background-color:#3288BD; color:#ffffff;"} is moderately significant, and [**green (p \< .05 \*\*\*** )]{style="background-color:#ABDDA4;"} is significant.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
@@ -1429,15 +1411,17 @@ k
 
 ## Recent Wellbeing
 
-Another of our intentions with this pilot study was to determine improvements in subjective wellbeing post-retreat. At *Baseline* and *One-Month*, participants were asked 15 questions related to their emotional wellbeing over the past two weeks, for example, "In the past two weeks, I have felt anxious or on edge." Responses in this section were offered on a 5-point Likert scale ranging from Strongly Agree to Strongly Disagree. Because this section asked about the recent two weeks, it was not included in the *Follow-up* questionnaire completed 7 days after *Baseline*.
+Another of our intentions with this pilot study was to determine improvements in subjective wellbeing post-retreat. At *Baseline* and *One-Month*, participants were asked 15 questions related to their emotional wellbeing over the past two weeks, for example, "In the past two weeks, I have felt anxious or on edge." Because this section asked about the recent two weeks, it was not included in the *Follow-up* questionnaire completed 7 days after *Baseline*.
 
-Participants reported improvements across a range of wellbeing indicators one month after the retreat. Notably, average scores increased on items related to emotional balance and vitality, such as "I have felt calm and at peace," "I have felt motivated to accomplish daily tasks," and "I have found it easy to make decisions." Several inverse-scored items (i.e., "I have experienced feelings of loneliness.") also showed improvement, with reductions in self-reported anxiety, difficulty concentrating, and depressive symptoms. In contrast, ratings on items related to physical discomfort and relationship tension remained stable. These patterns suggest a broad shift toward greater psychological wellbeing, particularly in areas related to daily functioning.
+**Participants reported substantial improvements across a range of wellbeing indicators one month after the retreat.** Notably, average scores increased on items related to emotional balance and vitality, such as "I have felt calm and at peace," "I have felt motivated to accomplish daily tasks," and "I have found it easy to make decisions." Several inverse-scored items (i.e., "I have experienced feelings of loneliness.") also showed improvement, with reductions in self-reported anxiety, difficulty concentrating, and disconnection from others. In contrast, ratings on items related to physical discomfort and relationship conflict remained stable.
+
+In written responses, one participant wrote "*It's not an emotion but I feel a lot of trust. Trusting in myself and in the Universe. In that I feel safe and can rest in the truth and surrender.*" Another wrote "*my life turned upside down*" (translated). Patience, calm, and hopefulness were qualitatively reported by multiple participants, with another writing "*I feel aligned with my life and choices, even if I have to face some big challenges.*"
 
 Chart 5 shows mean responses to each **Recent Wellbeing** item at two timepoints, where 5 = Strongly Agree, 4 = Somewhat Agree, 3 = Neither agree nor disagree, 2 = Somewhat Disagree, and 1 = Strongly Disagree. Note that recent wellbeing Questions were not asked at *Follow-up*, but only at *Baseline* and *One-month*.
 
 **Chart 5: How Participants' Recent Wellbeing Evolved After Retreat**
 
-```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=16}
+```{r chart: wellbeing across timepoints, echo=FALSE, fig.width=16, fig.height=22}
 ## wellbeing
 
 ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
@@ -1468,7 +1452,7 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
       "One-month"  = "#08306B"
     )
   ) +
-  theme_minimal(base_size = 20) +
+  theme_minimal(base_size = 24) +
   theme(
     panel.spacing    = unit(0.5, "lines"),
     panel.border     = element_rect(color = "black", linewidth = 0.6, fill = NA),
@@ -1483,15 +1467,17 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
   )
 ```
 
-These mean differences were analysed with a linear mixed model to account for longtitudinal data.
+These mean differences were analysed with a linear mixed model to account for longitudinal data.
 
 **Table 4: Mixed Models on Recent Wellbeing**
 
-Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains from baseline to one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (β = -0.59, p \< .001\*\*\*) and anxiety (β = -0.49, p \< .01\*\*), depression (β = -0.44, p \< .01\*\*), difficulty concentrating (β = -0.41, p \< .01\*\*), and irritability (β = -0.37, p = .032\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
+Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (β = -0.59, p \< .001\*\*\*) and anxiety (β = -0.49, p \< .01\*\*), depression (β = -0.44, p \< .01\*\*), difficulty concentrating (β = -0.41, p \< .01\*\*), and irritability (β = -0.37, p = .032\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
 
 Positive shifts were also observed in life satisfaction (β = -0.49, p = .013\*), calmness and peace (β = -0.61, p \< .01\*\*), and ease making decisions (β = -0.50, p = .023\*). Participants also reported **more frequent experiences of awe or transcendence** (β = -0.80, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
 
 Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
+
+See *Table 3* for statistically significant coloring legend.
 
 ```{r table: wellness lmm, echo=FALSE}
 results_wb_complete <- cleaned_wb %>%
@@ -1629,7 +1615,19 @@ conn_defs_tokens %>%
 
 ```
 
-```{r beep, message=FALSE, warning=FALSE, include=FALSE}
+# Conclusion
+
+This pilot longitudinal study found robust improvements in participants’ social connectedness and emotional wellbeing following ceremonial ayahuasca retreats, with effects sustained up to one month later. Reductions in loneliness, anxiety, and depressive symptoms were among the most significant findings, alongside enhanced feelings of being understood and belonging. These outcomes suggest that participation in these retreats may offer short-term benefits for emotional and interpersonal health.
+
+Contrary to our expectations, we observed minimal change in participants' reported connection to nature. This may reflect a ceiling effect, as baseline scores were already high. Or, it may indicate that the retreat context prioritized interpersonal processes over ecological ones. Notably, participants also reported heightened experiences of awe and transcendence—feelings that persisted even as they returned to daily life—pointing to a potentially meaningful shift in existential or spiritual perspective.
+
+Interestingly, participants’ relationship to the retreat experience was shaped by their prior exposure to ayahuasca. Those with greater experience were more than twice as likely to cite spiritual growth as their primary intention, compared to those newer to ayahuasca. This suggests that repeated engagement with ayahuasca may foster a deepening spiritual orientation over time.
+
+This study is limited by its lack of a control group and the difficulty of isolating the effects of ayahuasca from those of the broader retreat setting, including time away from daily stressors, group support, and ritual container. Future research would benefit from including non-psychoactive comparison groups and exploring whether such shifts persist beyond the first month. A six-month follow-up is currently underway, the results of which will be shared by the end of 2025.
+
+Overall, our findings underscore the importance of studying ayahuasca in context, as part of a socially and spiritually meaningful experience that may catalyze enduring changes in how people relate to themselves and others.
+
+```{r beep, message=FALSE, warning=FALSE, include = FALSE}
 library(beepr)
 beep()
 ```
