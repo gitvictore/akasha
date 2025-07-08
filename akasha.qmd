@@ -1,6 +1,6 @@
 ---
 title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longtitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
-abstract: "coming up next!"
+abstract: "coming up next!!"
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
@@ -12,7 +12,7 @@ date-format: medium
 last-modified: true
 published-title: "Last Updated"
 website:
-  google-analytics: "G-TSY9SM6ZEW"
+  google-analytics: "G-MV77RWFDV0"
 format:
   html:
     output-file: index.html
