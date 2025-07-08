@@ -11,8 +11,6 @@ date: last-modified
 date-format: medium
 last-modified: true
 published-title: "Last Updated"
-website:
-  google-analytics: "G-MV77RWFDV0"
 format:
   html:
     output-file: index.html
