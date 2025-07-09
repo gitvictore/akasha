@@ -1,10 +1,10 @@
 ---
-title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longitudinal Pilot Study Among Retreat Participants in Petrópolis, Brazil"
-abstract: "This longitudinal pilot study investigated changes in wellbeing and social connectedness among participants at ceremonial ayahuasca retreats in Petrópolis, Brazil. Participants completed surveys at baseline (before retreat), follow up (immediately post-retreat), and one month after the retreat. Results indicated significant improvements in mental health and social connectedness, notably in reduced loneliness and anxiety, and increased feelings of belonging and awe. Perhaps unexpectedly, connectedness to nature showed minimal change, being already high at baseline. Distinguishing the specific effects of ayahuasca from those of the retreat environment proved challenging, highlighting the need for future research with control groups attending non-psychoactive retreats. A six-month follow-up is planned to assess longer-term impacts."
+title: "Wellbeing and Connectedness After Ayahuasca: Findings from a Longitudinal Pilot Study Among Retreat Participants in Itaipava, Brazil"
+abstract: "This longitudinal pilot study investigated changes in wellbeing and social connectedness among participants at ceremonial ayahuasca retreats in Itaipava, Brazil. Participants completed surveys at baseline (before retreat), follow up (immediately post-retreat), and one month after the retreat. Results indicated significant improvements in mental health and social connectedness, notably in reduced loneliness and anxiety, and increased feelings of belonging and awe. Connectedness to nature showed minimal change, being already high at baseline. Distinguishing the specific effects of ayahuasca from those of the retreat environment proved challenging. A six-month follow-up is planned to assess longer-term impacts."
 author:
   - name: "Victor Souza Eduardo"
     affiliation: "CUNY Graduate School of Public Health"
-  - name: "Michèle Anne Barocchi, PhD"
+  - name: "Michèle Anne Barocchi"
     degrees: PhD
     affiliation: "MAPS Italia"
 date: last-modified
@@ -747,15 +747,15 @@ all_wide <- baseline %>%
 
 # Introduction
 
-Ayahuasca, a psychoactive brew originating from indigenous Amazonian traditions, has garnered global interest for its potential psychological and spiritual benefits. While clinical and neurobiological studies have grown in recent years, there is limited research on ayahuasca in naturalistic retreat settings, where participants often engage in multiple ceremonies over several days, immersed in ritual, music, and community. These contextual elements may play a critical role in shaping outcomes, yet they also complicate efforts to attribute change solely to the pharmacological effects of the brew.
+Ayahuasca, a psychoactive brew originating from indigenous Amazonian traditions, has garnered global interest for its potential psychological and spiritual benefits. While clinical and neurobiological studies have grown in recent years, there is limited research on ayahuasca in naturalistic retreat settings, where participants often engage in multiple ceremonies over several days, immersed in ritual, music, and community. These contextual elements may play a critical role in shaping outcomes post-ceremony.
 
-This pilot study aimed to assess changes in participants’ subjective sense of connectedness (both to nature and to others) as well as emotional wellbeing following participation in ceremonial ayahuasca retreats in Petrópolis, Brazil. Surveys were administered at three timepoints: before the retreat, immediately afterward, and one month later. We also explored how prior experience with ayahuasca shaped participants’ intentions and outcomes. One notable pattern was that participants with greater ayahuasca experience were significantly more likely to cite spiritual growth as their primary motivation for attending the retreat, suggesting a shift in orientation that may deepen with continued experience.
+This pilot study aimed to assess changes in participants’ subjective sense of connectedness (both to nature and to others) as well as emotional wellbeing following participation in ceremonial ayahuasca retreats in Itaipava, Brazil. We also explored how prior experience with ayahuasca shaped participants’ intentions and outcomes. One notable pattern was that participants with greater ayahuasca experience were significantly more likely to cite spiritual growth as their primary motivation for attending the retreat, suggesting a shift in orientation that may increase with continued experience.
 
 In addition to tracking short-term changes, we sought to identify methodological considerations for future research, including the need for comparison groups and longer follow-up periods to assess the durability and specificity of observed effects.
 
 # Methods
 
-This pilot study administered **three questionnaires using Qualtrics**: *Baseline*, *Follow-up*, and *One-Month*, to participants at four ceremonial ayahuasca retreats held at Aldeia Akasha in Petrópolis, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included three ayahuasca ceremonies conducted by indigenous spiritual leaders over the course of one week.
+This pilot study administered **three questionnaires using Qualtrics**: *Baseline*, *Follow-up*, and *One-Month*, to participants at four ceremonial ayahuasca retreats held at Aldeia Akasha in Itaipava, Rio de Janeiro, Brazil, between January and April 2025. Each retreat included three ayahuasca ceremonies conducted by indigenous spiritual leaders over the course of one week.
 
 Questionnaires were offered in both English and Portuguese, and participants received an anonymous Participant ID at the end of *Baseline* for longitudinal tracking.
 
@@ -765,7 +765,7 @@ Questionnaires were offered in both English and Portuguese, and participants rec
 
 The *Baseline* questionnaire collected participant demographic data (age, gender, education, language, country of origin, religious affiliation), degree of prior experience with ayahuasca, and intentions for participating in the retreat (mental or physical health concerns, for example). It also assessed baseline levels of wellbeing, including emotional states (e.g., calmness, anxiety, depression), physical comfort, concentration, sleep, decision-making, motivation, purpose, awe, satisfaction with life, social support, and relationship conflict. The questionnaire also measured nature and social connectedness, along with an open-ended definition of connection. Both the recent wellbeing and nature/social connectedness sections were asked using 5-point Likert scales, ranging from Strongly Agree to Strongly Disagree.
 
-The *Follow-up* questionnaire (administered shortly after the retreat) assessed participants' immediate post-ceremony emotional states (e.g., relaxed, connected, balanced, insightful, confused) and importance of the ceremonial setting (presence of facilitators, immediate neighbors, music, physical environment). It also collected qualitative data on the most helpful aspects of the ceremony, strongest emotions experienced. The same connectedness scales as the baseline were repeated, allowing evaluation of changes immediately following the retreat. Participants again provided a definition of connection.
+The *Follow-up* questionnaire (administered shortly after the retreat) assessed participants' immediate post-ceremony emotional states (e.g., relaxed, connected, balanced, insightful, confused) and importance of the ceremonial setting (presence of facilitators, immediate neighbors, music, physical environment). It also collected qualitative data on the most helpful aspects of the ceremony and reflections on the experience. The same connectedness scales as the baseline were repeated, allowing evaluation of changes immediately following the retreat. Participants again provided a definition of connection.
 
 At one month post-retreat, the *One-Month* questionnaire captured longer-term emotional states (relaxed, connected, emotionally balanced, insightful, confused). The questionnaire repeated the baseline wellbeing and nature/social connectedness scales, enabling analysis of sustained changes. Participants again provided qualitative reflections through open-ended questions and self-definitions of connection.
 
@@ -1171,7 +1171,7 @@ tidy(fisherglm,
 
 ## Ceremonial Setting
 
-In the *Follow-up* questionnaire, participants were asked to reflect on the perceived importance of various aspects within the ceremonial setting. Participants rated eight environmental and social aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners), on a 5-point Likert scale ranging from "Not at all important" to "Extremely important."
+In the *Follow-up* questionnaire, participants were asked to reflect on the perceived importance of various aspects within the ceremonial setting. Participants rated eight environmental and social aspects, including the presence of the shaman or *pajé* (e.g., Nixiwaka, Ninawa, Putanny), ritual elements (e.g., music, prayers), and contextual factors (e.g., group setting, physical space, sharing circles, and seat partners) on a 5-point Likert scale ranging from "Not at all important" to "Extremely important."
 
 Participants overwhelmingly agreed that **music** **was the most important part of the ceremony**, assigning it an average importance of 4.91 out of 5 and with 97.8% of respondents selecting the top-2-box, or the two highest categories in the scale, "very important" and "extremely important." One participant wrote "*the chants liberated a great happiness and enchantment in me*" (translated from Portuguese). The physical environment came next (M = 4.65; 95.7% top-2-box score), closely followed by the presence of the shaman, the rituals and prayers, and the group setting itself.
 
