@@ -914,14 +914,16 @@ all_raw <- bind_rows(
     ),
   fu %>%
     mutate(timepoint = "Follow-up") %>%
+    left_join(select(baseline, pid, retreat), by = "pid") %>%
     select(
-      pid, timepoint,
+      pid, retreat, timepoint,
       starts_with("fu_nsc_"), starts_with("fu_wb_")
     ),
   omo %>%
     mutate(timepoint = "One-month") %>%
+    left_join(select(baseline, pid, retreat), by = "pid") %>%
     select(
-      pid, timepoint,
+      pid, retreat, timepoint,
       starts_with("omo_nsc_"), starts_with("omo_wb_")
     )
 )
@@ -970,6 +972,7 @@ cleaned_nat <- all_nat %>%
 
 # 6) Clean wellbeing
 cleaned_wb <- all_wellbeing %>%
+  filter(timepoint != "Follow-up") %>%
   mutate(
     Question = Question_raw %>%
       str_remove("^.*_wb_") %>%            # drop everything through "_wb_"
@@ -1317,27 +1320,27 @@ ggplot(summary_nat, aes(x = timepoint, y = mean_response, group = 1)) +
 
 ------------------------------------------------------------------------
 
-These patterns were further supported by linear mixed model results that account for longitudinal measures, and adjusted for participants who did not complete all three timepoints. The strongest effects were seen in **reduced social disconnection** (β = 1.04, *p* \< .001\*\*\*) and **increases in feeling understood** (β = 1.01, *p* \< .001\*\*\*). These are highly statistically significant findings, in addition to being large effect sizes. An estimate of 1.0, in this case, would refer to a one-point improvement in responses, e.g., from Somewhat Agree (4) to Strongly Agree (5).
+These patterns were further supported by linear mixed model results that account for longitudinal measures, and adjusted for participants who did not complete all three timepoints. The strongest effects were seen in **reduced disconnection from others** (β = 1.09, *p* \< .001\*\*\*) and **increases in feeling understood** (β = 0.99, *p* \< .001\*\*\*). These are highly statistically significant findings, in addition to being large effect sizes. An estimate of 1.0, in this case, would refer to a one-point improvement in responses, e.g., from Somewhat Agree (4) to Strongly Agree (5).
 
 In contrast, nature-related items, while already high across the board, did not show statistically significant changes over time. These findings suggest that **participants largely already felt strongly connected to nature**—and while ayahuasca did not meaningfully affect this, the retreat had a greater impact on **improving social and emotional connection with others**.
 
 **Table 3: Mixed Models on Nature and Social Connectedness**
 
-Table 3 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on Nature and Social connectedness. Linear mixed models with random intercepts were used to estimate mean differences while accounting for repeated measures and including participants who did not complete all three surveys.
+Table 3 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on Nature and Social connectedness. Linear mixed models controlled by retreat were used to estimate mean differences while accounting for repeated measures.
 
 Statistically significant results are color-coded where [**purple (p \< .001 \*\*\*** )]{style="background-color:#5E4FA2; color:#ffffff;"} is highly significant, [**blue (p \< .01 \*\*\*** )]{style="background-color:#3288BD; color:#ffffff;"} is moderately significant, and [**green (p \< .05 \*\*\*** )]{style="background-color:#ABDDA4;"} is significant.
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
   # only keep pid/timepoint/Question/response
-  select(pid, timepoint, Question, response) %>%
+  select(pid, timepoint, retreat, Question, response) %>%
   # for reproducibility, ensure timepoint is a factor in the right order
   mutate(timepoint = factor(timepoint, levels = c("Baseline", "Follow-up", "One-month"))) %>%
   # nest by Question
   nest_by(Question) %>%
   mutate(
     # fit LMM
-    model = list(lmer(response ~ timepoint + (1 | pid), data = data, REML = FALSE)),
+    model = list(lmer(response ~ timepoint + retreat + (1 | pid), data = data, REML = FALSE)),
     # emmeans + pairwise contrasts
     em = list(emmeans(model, ~timepoint)),
     contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
@@ -1469,13 +1472,13 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
   )
 ```
 
-These mean differences were analysed with a linear mixed model to account for longitudinal data.
+These mean differences were analysed with linear models (adjusted by retreat) to account for longitudinal participant data.
 
 **Table 4: Mixed Models on Recent Wellbeing**
 
-Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including **loneliness** (β = -0.59, p \< .001\*\*\*) and anxiety (β = -0.49, p \< .01\*\*), depression (β = -0.44, p \< .01\*\*), difficulty concentrating (β = -0.41, p \< .01\*\*), and irritability (β = -0.37, p = .032\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
+Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including loneliness (β = 0.60, p \< .001\*\*\*) and anxiety (β = 0.55, p \< .01\*\*), depression (β = 0.44, p \< .01\*\*), difficulty concentrating (β = 0.42, p \< .01\*\*), and irritability (β = 0.43, p = .013\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
 
-Positive shifts were also observed in life satisfaction (β = -0.49, p = .013\*), calmness and peace (β = -0.61, p \< .01\*\*), and ease making decisions (β = -0.50, p = .023\*). Participants also reported **more frequent experiences of awe or transcendence** (β = -0.80, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
+Positive shifts were also observed in life satisfaction (β = 0.47, p = .020\*), calmness and peace (β = 0.65, p \< .01\*\*), and ease making decisions (β = 0.50, p = .027\*). Participants also reported **more frequent experiences of awe or transcendence** (β = 0.75, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
 
 Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
 
@@ -1484,14 +1487,14 @@ See *Table 3* for statistically significant coloring legend.
 ```{r table: wellness lmm, echo=FALSE}
 results_wb_complete <- cleaned_wb %>%
   # only keep pid/timepoint/Question/response
-  select(pid, timepoint, Question, response) %>%
+  select(pid, timepoint, retreat, Question, response) %>%
   # for reproducibility, ensure timepoint is a factor in the right order
   mutate(timepoint = factor(timepoint, levels = c("Baseline", "One-month"))) %>%
   # nest by Question
   nest_by(Question) %>%
   mutate(
     # fit LMM
-    model = list(lmer(response ~ timepoint + (1 | pid), data = data, REML = FALSE)),
+    model = list(lmer(response ~ timepoint + retreat + (1 | pid), data = data, REML = FALSE)),
     # emmeans + pairwise contrasts
     em = list(emmeans(model, ~timepoint)),
     contrasts = list(as.data.frame(contrast(em, method = "pairwise", adjust = "none")))
