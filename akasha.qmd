@@ -914,16 +914,16 @@ all_raw <- bind_rows(
     ),
   fu %>%
     mutate(timepoint = "Follow-up") %>%
-    left_join(select(baseline, pid, retreat), by = "pid") %>%
+    left_join(select(baseline, pid, prev_ayahuasca, retreat), by = "pid") %>%
     select(
-      pid, retreat, timepoint,
+      pid, retreat, timepoint, prev_ayahuasca,
       starts_with("fu_nsc_"), starts_with("fu_wb_")
     ),
   omo %>%
     mutate(timepoint = "One-month") %>%
-    left_join(select(baseline, pid, retreat), by = "pid") %>%
+    left_join(select(baseline, pid, prev_ayahuasca, retreat), by = "pid") %>%
     select(
-      pid, retreat, timepoint,
+      pid, retreat, timepoint, prev_ayahuasca,
       starts_with("omo_nsc_"), starts_with("omo_wb_")
     )
 )
@@ -939,7 +939,6 @@ all_long <- all_raw %>%
 # 3) Split NATSC vs wellbeing by prefix
 all_nat        <- all_long %>% filter(str_detect(Question_raw, "^.*_nsc_"))
 all_wellbeing  <- all_long %>% filter(str_detect(Question_raw, "^.*_wb_"))
-
 
 # define which questions to invert
 inv_nat <- c(
@@ -984,6 +983,7 @@ cleaned_wb <- all_wellbeing %>%
     )
   )
 
+
 # Commented this out because it isn't used anywhere
 # # 7) Full cleaned for combined use
 # cleaned_all <- bind_rows(
@@ -1000,6 +1000,7 @@ summary_wb <- cleaned_wb %>%
   group_by(Question, timepoint) %>%
   summarize(mean_response = mean(response, na.rm = TRUE), .groups = "drop") %>%
   filter(timepoint != "Follow-up")
+
 ```
 
 ### Who's Taken Ayahuasca Before?
@@ -1324,11 +1325,11 @@ These patterns were further supported by linear mixed model results that account
 
 In contrast, nature-related items, while already high across the board, did not show statistically significant changes over time. These findings suggest that **participants largely already felt strongly connected to nature**—and while ayahuasca did not meaningfully affect this, the retreat had a greater impact on **improving social and emotional connection with others**.
 
-**Table 3: Mixed Models on Nature and Social Connectedness**
-
 Table 3 summarizes paired comparisons between *Baseline* and both subsequent questionnaires (*Follow-up* and *One-month*) across 11 questions on Nature and Social connectedness. Linear mixed models controlled by retreat were used to estimate mean differences while accounting for repeated measures.
 
 Statistically significant results are color-coded where [**purple (p \< .001 \*\*\*** )]{style="background-color:#5E4FA2; color:#ffffff;"} is highly significant, [**blue (p \< .01 \*\*\*** )]{style="background-color:#3288BD; color:#ffffff;"} is moderately significant, and [**green (p \< .05 \*\*\*** )]{style="background-color:#ABDDA4;"} is significant.
+
+**Table 3: Mixed Models on Nature and Social Connectedness**
 
 ```{r table: nature-social lmm, echo=FALSE}
 results_nat_complete <- cleaned_nat %>%
@@ -1472,17 +1473,9 @@ ggplot(summary_wb, aes(timepoint, mean_response, group = 1)) +
   )
 ```
 
-These mean differences were analysed with linear models (adjusted by retreat) to account for longitudinal participant data.
+These mean differences were analysed with linear models (adjusted by retreat) to account for longitudinal participant data. See *Table 3* for statistical significance coloring legend.
 
 **Table 4: Mixed Models on Recent Wellbeing**
-
-Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including loneliness (β = 0.60, p \< .001\*\*\*) and anxiety (β = 0.55, p \< .01\*\*), depression (β = 0.44, p \< .01\*\*), difficulty concentrating (β = 0.42, p \< .01\*\*), and irritability (β = 0.43, p = .013\*). These estimates (β) represent decreases of roughly one-third to over half a scale point on the 5-point Likert scale used, corresponding to **moderate to large effect sizes.**
-
-Positive shifts were also observed in life satisfaction (β = 0.47, p = .020\*), calmness and peace (β = 0.65, p \< .01\*\*), and ease making decisions (β = 0.50, p = .027\*). Participants also reported **more frequent experiences of awe or transcendence** (β = 0.75, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
-
-Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
-
-See *Table 3* for statistically significant coloring legend.
 
 ```{r table: wellness lmm, echo=FALSE}
 results_wb_complete <- cleaned_wb %>%
@@ -1561,6 +1554,12 @@ kable(
   )
 
 ```
+
+Participants showed **broad and statistically significant** improvements across emotional, existential, and cognitive domains one month following the retreat. As shown in *Table 4*, participants reported **reduced symptoms of psychological distress**, including loneliness (β = 0.60, p \< .001\*\*\*) and anxiety (β = 0.55, p \< .01\*\*), depression (β = 0.44, p \< .01\*\*), difficulty concentrating (β = 0.42, p \< .01\*\*), and irritability (β = 0.43, p = .013\*).
+
+Positive shifts were also observed in life satisfaction (β = 0.47, p = .020\*), calmness and peace (β = 0.65, p \< .01\*\*), and ease making decisions (β = 0.50, p = .027\*). Participants also reported **more frequent experiences of awe or transcendence** (β = 0.75, p \< .001\*\*\*), a change close to a full scale point, suggesting a particularly strong impact in this domain.
+
+Other outcomes including sense of purpose, physical discomfort, sleep quality, and perceived social support trended in a positive direction, but did not reach statistical significance. No change was observed in relationship conflict. Taken together, these results suggest a broad and meaningful **improvement in psychological wellbeing, emotional regulation, and existential engagement** one month after the retreat.
 
 ```{r qual exploration, include=FALSE}
 nrc <- get_sentiments("nrc")
